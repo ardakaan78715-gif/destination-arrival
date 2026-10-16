@@ -11,6 +11,8 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
     DEVELOPMENT_TEAM: ""
+fileGroups:
+  - Simulation
 packages:
   ArrivalKit:
     path: Packages/ArrivalKit
@@ -48,7 +50,7 @@ schemes:
       config: Debug
       simulateLocation:
         allow: true
-        defaultLocation: London, England
+        defaultLocation: Simulation/MetropolitanLine.gpx
     test:
       config: Debug
       targets:

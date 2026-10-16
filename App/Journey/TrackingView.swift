@@ -34,6 +34,9 @@ struct TrackingView: View {
             Text("Keep Destination Arrival open in the background. Swiping it away stops tracking.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+            if let tunnel = journeyModel.tunnel {
+                TunnelToggle(tunnel: tunnel)
+            }
             Button(role: .destructive) {
                 journeyModel.cancel()
             } label: {
@@ -49,5 +52,14 @@ struct TrackingView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
         .padding(.horizontal)
         .padding(.bottom, 8)
+    }
+}
+
+private struct TunnelToggle: View {
+    @Bindable var tunnel: TunnelSimulator
+
+    var body: some View {
+        Toggle("Simulate a tunnel", isOn: $tunnel.isInTunnel)
+            .font(.subheadline)
     }
 }

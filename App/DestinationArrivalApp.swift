@@ -7,7 +7,11 @@ struct DestinationArrivalApp: App {
 
     init() {
         let dependencies = AppDependencies.live()
-        _journeyModel = State(initialValue: JourneyModel(location: dependencies.location, alarms: dependencies.alarms))
+        _journeyModel = State(initialValue: JourneyModel(
+            location: dependencies.location,
+            alarms: dependencies.alarms,
+            tunnel: dependencies.tunnel
+        ))
         _searchModel = State(initialValue: PlaceSearchModel(places: dependencies.search))
     }
 

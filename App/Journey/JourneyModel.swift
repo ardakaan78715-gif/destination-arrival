@@ -36,15 +36,17 @@ final class JourneyModel {
     private(set) var journey: Journey?
     private(set) var notices: [Notice] = []
     private(set) var isStarting = false
+    let tunnel: TunnelSimulator?
 
     @ObservationIgnored private let location: any LocationService
     @ObservationIgnored private let alarms: any AlarmService
     @ObservationIgnored private var locationTask: Task<Void, Never>?
     @ObservationIgnored private var clockTask: Task<Void, Never>?
 
-    init(location: any LocationService, alarms: any AlarmService) {
+    init(location: any LocationService, alarms: any AlarmService, tunnel: TunnelSimulator?) {
         self.location = location
         self.alarms = alarms
+        self.tunnel = tunnel
         alarms.onStopRequested = { [weak self] in self?.stopAlarm() }
         alarms.onBackupDelivered = { [weak self] in self?.send(.backupAlarmFired) }
     }

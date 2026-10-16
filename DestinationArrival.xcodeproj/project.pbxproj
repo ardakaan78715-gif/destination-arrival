@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01157D1CC547B5C491D2238D /* TunnelSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEDAE7FC923F23CBC2A9477B /* TunnelSimulator.swift */; };
 		01917A83FE6F7B575113AA0D /* SearchSuggestionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2FD02F2E3CC1804698F3E0 /* SearchSuggestionRow.swift */; };
 		0974E8075C6F87C390555B0C /* PlaceSearching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */; };
 		28A5C877903C3DDB0BB52B3E /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B998E9FE971457FE81D6469 /* LocationService.swift */; };
@@ -46,6 +47,7 @@
 		35F3D834C3F34C041245B328 /* JourneyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyModel.swift; sourceTree = "<group>"; };
 		40815619939BB6E32D8FFF95 /* DeviceLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceLocationService.swift; sourceTree = "<group>"; };
 		4EDD6C2B55DAA14360B7DFC5 /* ArrivalKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ArrivalKit; path = Packages/ArrivalKit; sourceTree = SOURCE_ROOT; };
+		5B7942A5C63E137A83CBD584 /* MetropolitanLine.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MetropolitanLine.gpx; sourceTree = "<group>"; };
 		654490D9885F5F7EF7922EBC /* LiveDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDependencies.swift; sourceTree = "<group>"; };
 		724CB4F660C478A1A3414DA4 /* Alarm.caf */ = {isa = PBXFileReference; path = Alarm.caf; sourceTree = "<group>"; };
 		8283BC38FFB45491A06599B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -66,6 +68,7 @@
 		BB8CCAA7BE8D4CAD53EBB4FA /* DestinationArrival.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DestinationArrival.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D06C6E86833781C133B1D776 /* PlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanView.swift; sourceTree = "<group>"; };
 		EB2FD02F2E3CC1804698F3E0 /* SearchSuggestionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchSuggestionRow.swift; sourceTree = "<group>"; };
+		FEDAE7FC923F23CBC2A9477B /* TunnelSimulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSimulator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,6 +88,7 @@
 			children = (
 				EE8D2340586178A0C924082D /* App */,
 				4B54D005CC67AA87A0F0B3D9 /* Packages */,
+				23C59521824796A25538F1D0 /* Simulation */,
 				1BFF19967FB427AD31367E05 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -107,6 +111,14 @@
 				BB8CCAA7BE8D4CAD53EBB4FA /* DestinationArrival.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		23C59521824796A25538F1D0 /* Simulation */ = {
+			isa = PBXGroup;
+			children = (
+				5B7942A5C63E137A83CBD584 /* MetropolitanLine.gpx */,
+			);
+			path = Simulation;
 			sourceTree = "<group>";
 		};
 		48DA2BDCAA721EB7439C7B32 /* Support */ = {
@@ -144,6 +156,7 @@
 				1616507578CC03CA09EC389C /* LocalPlaceSearch.swift */,
 				8B998E9FE971457FE81D6469 /* LocationService.swift */,
 				858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */,
+				FEDAE7FC923F23CBC2A9477B /* TunnelSimulator.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -288,6 +301,7 @@
 				7E1DD2C233C58BA59858CA3F /* ServiceArea+MapKit.swift in Sources */,
 				908667918F5432C2C2D77194 /* StatusChip.swift in Sources */,
 				67A2868CB2A318AF2FC34ABE /* TrackingView.swift in Sources */,
+				01157D1CC547B5C491D2238D /* TunnelSimulator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
