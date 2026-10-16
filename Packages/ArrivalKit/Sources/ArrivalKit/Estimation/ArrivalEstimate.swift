@@ -23,7 +23,7 @@ public struct ArrivalEstimate: Sendable, Equatable {
         tuning: ArrivalTuning = .standard
     ) {
         self.anchor = anchor
-        self.distance = max(0, anchor.distance(to: destination) - anchor.horizontalAccuracy)
+        self.distance = anchor.closestPossibleDistance(to: destination)
         if let cruiseSpeed, cruiseSpeed > 0 {
             self.speed = cruiseSpeed
             self.speedSource = .measured

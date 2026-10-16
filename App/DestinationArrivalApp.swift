@@ -14,11 +14,9 @@ struct DestinationArrivalApp: App {
         _settingsStore = State(initialValue: settingsStore)
         _placeHistory = State(initialValue: placeHistory)
         _journeyModel = State(initialValue: JourneyModel(
-            location: dependencies.location,
-            alarms: dependencies.alarms,
+            dependencies: dependencies,
             settingsStore: settingsStore,
-            placeHistory: placeHistory,
-            tunnel: dependencies.tunnel
+            placeHistory: placeHistory
         ))
         _searchModel = State(initialValue: PlaceSearchModel(places: dependencies.search))
     }

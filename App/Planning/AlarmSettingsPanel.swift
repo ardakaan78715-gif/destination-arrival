@@ -19,8 +19,8 @@ struct AlarmSettingsPanel: View {
                     SavedPlacesBar()
                 }
             }
-            ForEach(journeyModel.notices, id: \.self) { notice in
-                Label(notice.message, systemImage: "exclamationmark.triangle.fill")
+            if journeyModel.notice == .outsideLondon {
+                Label("Pick somewhere in London for now.", systemImage: "exclamationmark.triangle.fill")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

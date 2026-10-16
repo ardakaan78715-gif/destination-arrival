@@ -5,7 +5,7 @@ import CoreLocation
 final class DeviceLocationService: NSObject, LocationService {
     private let manager = CLLocationManager()
     private var permissionRequests: [CheckedContinuation<Bool, Never>] = []
-    private var samples: AsyncStream<LocationSample>.Continuation?
+    private var updates: AsyncStream<LocationUpdate>.Continuation?
     private var backgroundActivity: CLBackgroundActivitySession?
 
     override init() {
@@ -13,6 +13,10 @@ final class DeviceLocationService: NSObject, LocationService {
         manager.delegate = self
         manager.distanceFilter = kCLDistanceFilterNone
         manager.activityType = .otherNavigation
+    }
+
+    var lastKnownSample: LocationSample? {
+        manager.location.map(LocationSample.init)
     }
 
     func requestPermission() async -> Bool {
@@ -31,13 +35,13 @@ final class DeviceLocationService: NSObject, LocationService {
         }
     }
 
-    func start(precision: TrackingPrecision) -> AsyncStream<LocationSample> {
-        samples?.finish()
+    func start(precision: TrackingPrecision) -> AsyncStream<LocationUpdate> {
+        updates?.finish()
         let (stream, continuation) = AsyncStream.makeStream(
-            of: LocationSample.self,
+            of: LocationUpdate.self,
             bufferingPolicy: .bufferingNewest(16)
         )
-        samples = continuation
+        updates = continuation
         setPrecision(precision)
         manager.allowsBackgroundLocationUpdates = true
         manager.showsBackgroundLocationIndicator = true
@@ -57,8 +61,8 @@ final class DeviceLocationService: NSObject, LocationService {
         manager.allowsBackgroundLocationUpdates = false
         backgroundActivity?.invalidate()
         backgroundActivity = nil
-        samples?.finish()
-        samples = nil
+        updates?.finish()
+        updates = nil
     }
 
     private static func desiredAccuracy(for precision: TrackingPrecision) -> CLLocationAccuracy {
@@ -76,10 +80,30 @@ final class DeviceLocationService: NSObject, LocationService {
         let waiting = permissionRequests
         permissionRequests.removeAll()
         waiting.forEach { $0.resume(returning: granted) }
+        if granted {
+            resumeIfTracking()
+        } else {
+            reportAccessLost()
+        }
+    }
+
+    private func resumeIfTracking() {
+        guard updates != nil else { return }
+        manager.startUpdatingLocation()
+    }
+
+    private func updatesFailed(with code: CLError.Code) {
+        if code == .denied {
+            reportAccessLost()
+        }
+    }
+
+    private func reportAccessLost() {
+        updates?.yield(.accessLost)
     }
 
     private func deliver(_ received: [LocationSample]) {
-        received.forEach { samples?.yield($0) }
+        received.forEach { updates?.yield(.sample($0)) }
     }
 }
 
@@ -95,6 +119,13 @@ extension DeviceLocationService: CLLocationManagerDelegate {
         let received = locations.map(LocationSample.init)
         MainActor.assumeIsolated {
             deliver(received)
+        }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        guard let code = (error as? CLError)?.code, code != .locationUnknown else { return }
+        MainActor.assumeIsolated {
+            updatesFailed(with: code)
         }
     }
 }

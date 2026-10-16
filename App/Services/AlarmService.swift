@@ -5,8 +5,7 @@ import Foundation
 protocol AlarmService: AnyObject {
     var onStopRequested: (@MainActor () -> Void)? { get set }
     var onBackupDelivered: (@MainActor () -> Void)? { get set }
-    var isVolumeLow: Bool { get }
-    func requestPermission() async -> Bool
+    func requestPermission() async
     func ring(for journey: Journey, reason: AlarmReason, unit: DistanceUnit)
     func silence()
     func scheduleBackup(at date: Date, for journey: Journey)

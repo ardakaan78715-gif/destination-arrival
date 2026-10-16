@@ -18,12 +18,8 @@ final class LiveAlarmService: NSObject, AlarmService {
         center.setNotificationCategories([AlarmNotification.category])
     }
 
-    var isVolumeLow: Bool {
-        sound.isVolumeLow
-    }
-
-    func requestPermission() async -> Bool {
-        (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+    func requestPermission() async {
+        _ = try? await center.requestAuthorization(options: [.alert, .sound])
     }
 
     func ring(for journey: Journey, reason: AlarmReason, unit: DistanceUnit) {

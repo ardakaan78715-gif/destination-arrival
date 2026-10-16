@@ -4,6 +4,7 @@ import SwiftUI
 
 struct TrackingView: View {
     @Environment(JourneyModel.self) private var journeyModel
+    @Environment(\.openURL) private var openURL
     @State private var position = MapCameraPosition.automatic
 
     var body: some View {
@@ -17,6 +18,11 @@ struct TrackingView: View {
                 MapCompass()
                 MapScaleView()
             }
+            .safeAreaInset(edge: .top) {
+                if journeyModel.notice == .locationLost {
+                    locationLostBanner(journey)
+                }
+            }
             .safeAreaInset(edge: .bottom) {
                 journeyPanel(journey)
             }
@@ -26,11 +32,6 @@ struct TrackingView: View {
     private func journeyPanel(_ journey: Journey) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             ArrivalCard(journey: journey, unit: journeyModel.distanceUnit)
-            ForEach(journeyModel.notices, id: \.self) { notice in
-                Label(notice.message, systemImage: "exclamationmark.triangle.fill")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
             Text("Keep Destination Arrival open in the background. Swiping it away stops tracking.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -52,6 +53,25 @@ struct TrackingView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
         .padding(.horizontal)
         .padding(.bottom, 8)
+    }
+
+    private func locationLostBanner(_ journey: Journey) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(Formatting.locationLost(backupAlarm: journey.scheduledBackup), systemImage: "location.slash.fill")
+                .font(.subheadline.weight(.semibold))
+            if let settingsURL = journeyModel.settingsURL {
+                Button("Open Settings") {
+                    openURL(settingsURL)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .padding(.horizontal)
+        .padding(.top, 8)
     }
 }
 

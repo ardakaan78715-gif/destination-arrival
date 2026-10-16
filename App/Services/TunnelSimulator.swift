@@ -13,22 +13,26 @@ final class TunnelSimulator: LocationService {
         self.wrapped = wrapped
     }
 
+    var lastKnownSample: LocationSample? {
+        wrapped.lastKnownSample
+    }
+
     func requestPermission() async -> Bool {
         await wrapped.requestPermission()
     }
 
-    func start(precision: TrackingPrecision) -> AsyncStream<LocationSample> {
+    func start(precision: TrackingPrecision) -> AsyncStream<LocationUpdate> {
         let upstream = wrapped.start(precision: precision)
         let (stream, continuation) = AsyncStream.makeStream(
-            of: LocationSample.self,
+            of: LocationUpdate.self,
             bufferingPolicy: .bufferingNewest(16)
         )
         forwarding?.cancel()
         forwarding = Task { [weak self] in
-            for await sample in upstream {
+            for await update in upstream {
                 guard let self else { break }
-                if !isInTunnel {
-                    continuation.yield(sample)
+                if !blocks(update) {
+                    continuation.yield(update)
                 }
             }
             continuation.finish()
@@ -45,5 +49,14 @@ final class TunnelSimulator: LocationService {
         forwarding?.cancel()
         forwarding = nil
         isInTunnel = false
+    }
+
+    private func blocks(_ update: LocationUpdate) -> Bool {
+        switch update {
+        case .sample:
+            isInTunnel
+        case .accessLost:
+            false
+        }
     }
 }

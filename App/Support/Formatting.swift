@@ -29,6 +29,13 @@ enum Formatting {
         date.formatted(date: .omitted, time: .shortened)
     }
 
+    static func locationLost(backupAlarm: Date?) -> String {
+        guard let backupAlarm else {
+            return "Location access was turned off. Turn it back on in Settings so the alarm knows where you are."
+        }
+        return "Location access was turned off. Your backup alarm at \(clockTime(backupAlarm)) is still set."
+    }
+
     static func alarmReason(_ reason: AlarmReason, for journey: Journey, unit: DistanceUnit) -> String {
         switch reason {
         case .withinLeadTime:

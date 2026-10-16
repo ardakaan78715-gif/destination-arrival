@@ -10,6 +10,7 @@ struct PlanView: View {
 
     var body: some View {
         @Bindable var searchModel = searchModel
+        @Bindable var journeyModel = journeyModel
         NavigationStack {
             DestinationMap()
                 .safeAreaInset(edge: .bottom) {
@@ -25,6 +26,9 @@ struct PlanView: View {
                 }
                 .sheet(isPresented: $isSettingsPresented) {
                     SettingsView()
+                }
+                .sheet(item: $journeyModel.readinessCheck) { check in
+                    ReadinessSheet(check: check)
                 }
                 .searchable(text: $searchModel.query, isPresented: $isSearchPresented, prompt: "Search London")
                 .searchSuggestions {

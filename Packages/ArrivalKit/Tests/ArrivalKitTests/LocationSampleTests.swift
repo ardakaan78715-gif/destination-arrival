@@ -32,6 +32,25 @@ import Testing
         #expect(abs(bakerStreet.distance(to: kingsCross) - 2_480) < 100)
     }
 
+    @Test func closestPossibleDistanceSubtractsAccuracy() {
+        let kingsCross = Destination(name: "King's Cross St Pancras", latitude: 51.5308, longitude: -0.1238)
+        let coarse = LocationSample(
+            latitude: 51.5226,
+            longitude: -0.1571,
+            horizontalAccuracy: 150,
+            timestamp: FixBuilder.startDate
+        )
+        let alongside = LocationSample(
+            latitude: 51.5310,
+            longitude: -0.1238,
+            horizontalAccuracy: 65,
+            timestamp: FixBuilder.startDate
+        )
+
+        #expect(coarse.closestPossibleDistance(to: kingsCross) == coarse.distance(to: kingsCross) - 150)
+        #expect(alongside.closestPossibleDistance(to: kingsCross) == 0)
+    }
+
     @Test func distanceToSampleMatchesDistanceToDestination() {
         let samples = FixBuilder(speed: 100, count: 11).samples()
         let end = samples[10]
