@@ -13,6 +13,14 @@ public struct AlarmSettings: Sendable, Hashable, Codable {
         self.radius = Self.clampedRadius(radius)
     }
 
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            leadTime: try container.decode(TimeInterval.self, forKey: .leadTime),
+            radius: try container.decode(Double.self, forKey: .radius)
+        )
+    }
+
     private static func snappedLeadTime(_ value: TimeInterval) -> TimeInterval {
         leadTimeChoices.reduce(leadTimeChoices[0]) { best, choice in
             abs(choice - value) < abs(best - value) ? choice : best

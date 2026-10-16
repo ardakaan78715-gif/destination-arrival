@@ -1,5 +1,6 @@
 import ArrivalKit
 import CoreLocation
+import Foundation
 import Observation
 
 @MainActor
@@ -11,36 +12,58 @@ final class JourneyModel {
         case ringing(AlarmReason)
     }
 
-    enum Notice: Equatable {
+    enum Notice: Hashable {
         case outsideLondon
-        case locationDenied
-        case notificationsOff
+        case locationLost
+    }
 
-        var message: String {
-            switch self {
-            case .outsideLondon:
-                "Pick somewhere in London for now."
-            case .locationDenied:
-                "Location is off for Destination Arrival. Turn it on in Settings so the alarm knows where you are."
-            case .notificationsOff:
-                "Notifications are off. The alarm can only sound while the app is running."
-            }
+    struct ReadinessCheck: Identifiable, Hashable {
+        let issues: [ReadinessIssue]
+
+        var id: [ReadinessIssue] {
+            issues
+        }
+
+        var canStartAnyway: Bool {
+            !issues.contains(where: \.isBlocking)
         }
     }
 
     var draft: Destination?
-    var settings = AlarmSettings()
+    var readinessCheck: ReadinessCheck?
     private(set) var journey: Journey?
     private(set) var notice: Notice?
     private(set) var isStarting = false
+    let settingsURL: URL?
+    let tunnel: TunnelSimulator?
 
     @ObservationIgnored private let location: any LocationService
     @ObservationIgnored private let alarms: any AlarmService
+    @ObservationIgnored private let readiness: any ReadinessProbing
+    @ObservationIgnored private let settingsStore: SettingsStore
+    @ObservationIgnored private let placeHistory: PlaceHistoryStore
     @ObservationIgnored private var locationTask: Task<Void, Never>?
+    @ObservationIgnored private var clockTask: Task<Void, Never>?
 
-    init(location: any LocationService, alarms: any AlarmService) {
-        self.location = location
-        self.alarms = alarms
+    init(dependencies: AppDependencies, settingsStore: SettingsStore, placeHistory: PlaceHistoryStore) {
+        location = dependencies.location
+        alarms = dependencies.alarms
+        readiness = dependencies.readiness
+        settingsURL = dependencies.settingsURL
+        tunnel = dependencies.tunnel
+        self.settingsStore = settingsStore
+        self.placeHistory = placeHistory
+        alarms.onStopRequested = { [weak self] in self?.stopAlarm() }
+        alarms.onBackupDelivered = { [weak self] in self?.send(.backupAlarmFired) }
+    }
+
+    var settings: AlarmSettings {
+        get { settingsStore.alarm }
+        set { settingsStore.alarm = newValue }
+    }
+
+    var distanceUnit: DistanceUnit {
+        settingsStore.distanceUnit
     }
 
     var screen: Screen {
@@ -77,19 +100,36 @@ final class JourneyModel {
         isStarting = true
         defer { isStarting = false }
 
-        guard await location.requestPermission() else {
-            notice = .locationDenied
-            return
+        if await location.requestPermission() {
+            await alarms.requestPermission()
         }
-        let notificationsAllowed = await alarms.requestPermission()
-        notice = notificationsAllowed ? nil : .notificationsOff
-        journey = Journey(destination: draft, settings: settings)
-        send(.started(.now))
+        let snapshot = await readiness.snapshot(for: draft, settings: settings)
+        let issues = Readiness.issues(for: snapshot)
+        if issues.isEmpty {
+            readinessCheck = nil
+            begin(to: draft)
+        } else {
+            readinessCheck = ReadinessCheck(issues: issues)
+        }
+    }
+
+    func startAnyway() {
+        guard let draft, readinessCheck?.canStartAnyway == true else { return }
+        readinessCheck = nil
+        begin(to: draft)
     }
 
     func stopAlarm() {
-        send(.alarmStopped)
-        endJourney()
+        switch journey?.phase {
+        case .ringing:
+            send(.alarmStopped)
+            endJourney()
+        case .tracking:
+            cancel()
+            alarms.silence()
+        case .ready, .finished, nil:
+            alarms.silence()
+        }
     }
 
     func cancel() {
@@ -97,10 +137,25 @@ final class JourneyModel {
         endJourney()
     }
 
+    func playTestAlarm() {
+        alarms.playTest()
+    }
+
+    private func begin(to destination: Destination) {
+        guard journey == nil else { return }
+        notice = nil
+        journey = Journey(destination: destination, settings: settings)
+        send(.started(.now))
+        placeHistory.update { $0.recordJourney(to: destination) }
+    }
+
     private func endJourney() {
         locationTask?.cancel()
+        clockTask?.cancel()
         locationTask = nil
+        clockTask = nil
         journey = nil
+        notice = nil
     }
 
     private func send(_ event: JourneyEvent) {
@@ -112,24 +167,60 @@ final class JourneyModel {
 
     private func perform(_ effect: JourneyEffect) {
         switch effect {
-        case .startLocationUpdates:
-            follow(location.start())
+        case .startLocationUpdates(let precision):
+            follow(location.start(precision: precision))
+            startClock()
+        case .changePrecision(let precision):
+            location.setPrecision(precision)
         case .stopLocationUpdates:
             location.stop()
+            clockTask?.cancel()
+        case .scheduleBackupAlarm(let date):
+            if let journey {
+                alarms.scheduleBackup(at: date, for: journey)
+            }
+        case .cancelBackupAlarm:
+            alarms.cancelBackup()
         case .ringAlarm(let reason):
             if let journey {
-                alarms.ring(for: journey, reason: reason)
+                alarms.ring(for: journey, reason: reason, unit: distanceUnit)
             }
         case .silenceAlarm:
             alarms.silence()
         }
     }
 
-    private func follow(_ samples: AsyncStream<LocationSample>) {
+    private func receive(_ update: LocationUpdate) {
+        switch update {
+        case .sample(let sample):
+            if notice == .locationLost {
+                notice = nil
+            }
+            send(.locationReceived(sample))
+        case .accessLost:
+            notice = .locationLost
+        }
+    }
+
+    private func follow(_ updates: AsyncStream<LocationUpdate>) {
         locationTask?.cancel()
         locationTask = Task { [weak self] in
-            for await sample in samples {
-                self?.send(.locationReceived(sample))
+            for await update in updates {
+                self?.receive(update)
+            }
+        }
+    }
+
+    private func startClock() {
+        clockTask?.cancel()
+        clockTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(10))
+                } catch {
+                    return
+                }
+                self?.send(.clockTicked(.now))
             }
         }
     }

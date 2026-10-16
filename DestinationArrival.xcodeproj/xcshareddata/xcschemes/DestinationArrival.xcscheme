@@ -75,8 +75,8 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <LocationScenarioReference
-         identifier = "London, England"
-         referenceType = "1">
+         identifier = "../../Simulation/MetropolitanLine.gpx"
+         referenceType = "0">
       </LocationScenarioReference>
       <CommandLineArguments>
       </CommandLineArguments>

@@ -8,4 +8,6 @@ public enum JourneyPhase: Sendable, Equatable {
 public enum AlarmReason: Sendable, Equatable {
     case withinLeadTime
     case insideRadius
+    case projectedDuringSignalLoss
+    case scheduledBackup
 }

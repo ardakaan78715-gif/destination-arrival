@@ -7,32 +7,48 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01157D1CC547B5C491D2238D /* TunnelSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEDAE7FC923F23CBC2A9477B /* TunnelSimulator.swift */; };
 		01917A83FE6F7B575113AA0D /* SearchSuggestionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2FD02F2E3CC1804698F3E0 /* SearchSuggestionRow.swift */; };
 		0974E8075C6F87C390555B0C /* PlaceSearching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */; };
+		0FFB523F19BA51641E4AFB37 /* ReadinessProbing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88937ECA0AE1B20FB9D514A /* ReadinessProbing.swift */; };
 		28A5C877903C3DDB0BB52B3E /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B998E9FE971457FE81D6469 /* LocationService.swift */; };
+		2C1996943512467455F71BB0 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5285E1E7AAACCCF024C540 /* SettingsStore.swift */; };
+		3CEF1769DDAEB015A7DAC0C5 /* Alarm.caf in Resources */ = {isa = PBXBuildFile; fileRef = 724CB4F660C478A1A3414DA4 /* Alarm.caf */; };
+		457FBBFCBED0BB1E15F415CA /* ArrivalCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D092F8212DD9B3FC2030032 /* ArrivalCard.swift */; };
+		57FC572E9E9A74DA1E6C3395 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A419A4B285DB85B954A535C2 /* SettingsView.swift */; };
 		5B15936DE65F35236237E380 /* DeviceLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40815619939BB6E32D8FFF95 /* DeviceLocationService.swift */; };
+		5CFC960BB844C68F38D06FE9 /* SavedPlacesBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0700C0E860FF9B901356A /* SavedPlacesBar.swift */; };
 		67A2868CB2A318AF2FC34ABE /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97089FF793136C2EBFD084E5 /* TrackingView.swift */; };
 		7AB110D33E251CBF4E9A0D9F /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F67281ED16B60CD74A2FBAA /* AppDependencies.swift */; };
 		7E1DD2C233C58BA59858CA3F /* ServiceArea+MapKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E150F9157B99B1AEE077C0 /* ServiceArea+MapKit.swift */; };
 		894CF71FB26E51833ECF3159 /* DestinationMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA8E64B635341EA527DD879 /* DestinationMap.swift */; };
 		8E86E58DFB4A980530FA3120 /* LocalPlaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1616507578CC03CA09EC389C /* LocalPlaceSearch.swift */; };
+		908667918F5432C2C2D77194 /* StatusChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C2557DCB49EDD5DCB54E8B3 /* StatusChip.swift */; };
 		9547BECC532DEC92D849CF8D /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B556404C3F39D456547A346C /* RootView.swift */; };
 		9DE4C6D2E6C9FFCE43B1C964 /* Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB08781CA9C86CE477803EAF /* Formatting.swift */; };
 		9E3EBBAD129FE32046EE84C6 /* AlarmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC8C3496317BFB0772C4693 /* AlarmView.swift */; };
 		A354306C0DF332E497913C8F /* ArrivalKit in Frameworks */ = {isa = PBXBuildFile; productRef = DD94A0A18472D1486910D7B4 /* ArrivalKit */; };
 		A43174AAABADC2587EE19DD3 /* DestinationArrivalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23235D29C22A6D1D0772C898 /* DestinationArrivalApp.swift */; };
+		A952FE96FD5C8DA62CD3726A /* ReadinessSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5591A273231B7715ED25270 /* ReadinessSheet.swift */; };
+		A96125CEB18758FB51D35274 /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585213AC4641A81C769A2514 /* DistanceUnit.swift */; };
+		AEBF10A55AEB2FC5AC0BE257 /* AlarmSounding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975CC2A4EADC7218AE4156D9 /* AlarmSounding.swift */; };
 		BDC97BBD231B71201D0A4198 /* AlarmService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92ECA7C479CA108F347D906 /* AlarmService.swift */; };
 		D0CA9C1EC0A3CDCFE06859DF /* PlaceSearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0CD7DC80797131F2A5E220 /* PlaceSearchModel.swift */; };
+		D59E5E014EB6A24D4268505B /* DeviceReadinessProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACD8BF0162E84E52B1A69F5 /* DeviceReadinessProbe.swift */; };
 		D83F7EB454A3A0C73F1E0F2B /* AlarmSettingsPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB8D5F292B81C87EE378C40 /* AlarmSettingsPanel.swift */; };
 		DE34406953E1052427A587BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 212960B2C21363BAF70DF863 /* Assets.xcassets */; };
 		E326A005F265752A2C1BFA6A /* JourneyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F3D834C3F34C041245B328 /* JourneyModel.swift */; };
 		E3E6F2E9078F9E197008D4D3 /* LiveDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654490D9885F5F7EF7922EBC /* LiveDependencies.swift */; };
+		E5949ACEE8887DF99A44E6C9 /* PlaceHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 739D39DBBC1BC0F297CE9326 /* PlaceHistoryStore.swift */; };
 		E8807B6CAC2885E90FBC1D01 /* LiveAlarmService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943B92BBDADC5EFA0E39659A /* LiveAlarmService.swift */; };
+		EA3948BA65242FC05B764E46 /* AlarmSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8394242DB80A632263F16B23 /* AlarmSoundPlayer.swift */; };
 		F697DF9E3676CF3AD1FA45EA /* PlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06C6E86833781C133B1D776 /* PlanView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0ACD8BF0162E84E52B1A69F5 /* DeviceReadinessProbe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceReadinessProbe.swift; sourceTree = "<group>"; };
 		1616507578CC03CA09EC389C /* LocalPlaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPlaceSearch.swift; sourceTree = "<group>"; };
+		1C2557DCB49EDD5DCB54E8B3 /* StatusChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusChip.swift; sourceTree = "<group>"; };
 		1DA8E64B635341EA527DD879 /* DestinationMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationMap.swift; sourceTree = "<group>"; };
 		212960B2C21363BAF70DF863 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		23235D29C22A6D1D0772C898 /* DestinationArrivalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationArrivalApp.swift; sourceTree = "<group>"; };
@@ -40,22 +56,35 @@
 		35F3D834C3F34C041245B328 /* JourneyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JourneyModel.swift; sourceTree = "<group>"; };
 		40815619939BB6E32D8FFF95 /* DeviceLocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceLocationService.swift; sourceTree = "<group>"; };
 		4EDD6C2B55DAA14360B7DFC5 /* ArrivalKit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ArrivalKit; path = Packages/ArrivalKit; sourceTree = SOURCE_ROOT; };
+		585213AC4641A81C769A2514 /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
+		5B7942A5C63E137A83CBD584 /* MetropolitanLine.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MetropolitanLine.gpx; sourceTree = "<group>"; };
 		654490D9885F5F7EF7922EBC /* LiveDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDependencies.swift; sourceTree = "<group>"; };
+		724CB4F660C478A1A3414DA4 /* Alarm.caf */ = {isa = PBXFileReference; path = Alarm.caf; sourceTree = "<group>"; };
+		739D39DBBC1BC0F297CE9326 /* PlaceHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceHistoryStore.swift; sourceTree = "<group>"; };
 		8283BC38FFB45491A06599B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8394242DB80A632263F16B23 /* AlarmSoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSoundPlayer.swift; sourceTree = "<group>"; };
 		858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearching.swift; sourceTree = "<group>"; };
 		8B998E9FE971457FE81D6469 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		8D092F8212DD9B3FC2030032 /* ArrivalCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalCard.swift; sourceTree = "<group>"; };
 		943B92BBDADC5EFA0E39659A /* LiveAlarmService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveAlarmService.swift; sourceTree = "<group>"; };
 		96E150F9157B99B1AEE077C0 /* ServiceArea+MapKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ServiceArea+MapKit.swift"; sourceTree = "<group>"; };
 		97089FF793136C2EBFD084E5 /* TrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
+		975CC2A4EADC7218AE4156D9 /* AlarmSounding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSounding.swift; sourceTree = "<group>"; };
 		9A0CD7DC80797131F2A5E220 /* PlaceSearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearchModel.swift; sourceTree = "<group>"; };
 		9DC8C3496317BFB0772C4693 /* AlarmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmView.swift; sourceTree = "<group>"; };
 		9F67281ED16B60CD74A2FBAA /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
+		A419A4B285DB85B954A535C2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A88937ECA0AE1B20FB9D514A /* ReadinessProbing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadinessProbing.swift; sourceTree = "<group>"; };
 		A92ECA7C479CA108F347D906 /* AlarmService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmService.swift; sourceTree = "<group>"; };
+		B2C0700C0E860FF9B901356A /* SavedPlacesBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlacesBar.swift; sourceTree = "<group>"; };
 		B556404C3F39D456547A346C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		BB08781CA9C86CE477803EAF /* Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatting.swift; sourceTree = "<group>"; };
 		BB8CCAA7BE8D4CAD53EBB4FA /* DestinationArrival.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DestinationArrival.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D06C6E86833781C133B1D776 /* PlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanView.swift; sourceTree = "<group>"; };
+		E5591A273231B7715ED25270 /* ReadinessSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadinessSheet.swift; sourceTree = "<group>"; };
 		EB2FD02F2E3CC1804698F3E0 /* SearchSuggestionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchSuggestionRow.swift; sourceTree = "<group>"; };
+		EE5285E1E7AAACCCF024C540 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		FEDAE7FC923F23CBC2A9477B /* TunnelSimulator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSimulator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +104,7 @@
 			children = (
 				EE8D2340586178A0C924082D /* App */,
 				4B54D005CC67AA87A0F0B3D9 /* Packages */,
+				23C59521824796A25538F1D0 /* Simulation */,
 				1BFF19967FB427AD31367E05 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -83,7 +113,9 @@
 			isa = PBXGroup;
 			children = (
 				9DC8C3496317BFB0772C4693 /* AlarmView.swift */,
+				8D092F8212DD9B3FC2030032 /* ArrivalCard.swift */,
 				35F3D834C3F34C041245B328 /* JourneyModel.swift */,
+				1C2557DCB49EDD5DCB54E8B3 /* StatusChip.swift */,
 				97089FF793136C2EBFD084E5 /* TrackingView.swift */,
 			);
 			path = Journey;
@@ -95,6 +127,24 @@
 				BB8CCAA7BE8D4CAD53EBB4FA /* DestinationArrival.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		23C59521824796A25538F1D0 /* Simulation */ = {
+			isa = PBXGroup;
+			children = (
+				5B7942A5C63E137A83CBD584 /* MetropolitanLine.gpx */,
+			);
+			path = Simulation;
+			sourceTree = "<group>";
+		};
+		36EA697992ADD1911DF6AAF3 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				585213AC4641A81C769A2514 /* DistanceUnit.swift */,
+				EE5285E1E7AAACCCF024C540 /* SettingsStore.swift */,
+				A419A4B285DB85B954A535C2 /* SettingsView.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		48DA2BDCAA721EB7439C7B32 /* Support */ = {
@@ -109,6 +159,7 @@
 		4B135915FF42EB626C9B4DC5 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				724CB4F660C478A1A3414DA4 /* Alarm.caf */,
 				212960B2C21363BAF70DF863 /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -126,10 +177,13 @@
 			isa = PBXGroup;
 			children = (
 				A92ECA7C479CA108F347D906 /* AlarmService.swift */,
+				975CC2A4EADC7218AE4156D9 /* AlarmSounding.swift */,
 				943B92BBDADC5EFA0E39659A /* LiveAlarmService.swift */,
 				1616507578CC03CA09EC389C /* LocalPlaceSearch.swift */,
 				8B998E9FE971457FE81D6469 /* LocationService.swift */,
 				858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */,
+				A88937ECA0AE1B20FB9D514A /* ReadinessProbing.swift */,
+				FEDAE7FC923F23CBC2A9477B /* TunnelSimulator.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -137,7 +191,9 @@
 		D9A2029E8A398365D1EF6C62 /* Platform */ = {
 			isa = PBXGroup;
 			children = (
+				8394242DB80A632263F16B23 /* AlarmSoundPlayer.swift */,
 				40815619939BB6E32D8FFF95 /* DeviceLocationService.swift */,
+				0ACD8BF0162E84E52B1A69F5 /* DeviceReadinessProbe.swift */,
 				654490D9885F5F7EF7922EBC /* LiveDependencies.swift */,
 			);
 			path = Platform;
@@ -151,13 +207,23 @@
 				8283BC38FFB45491A06599B5 /* Info.plist */,
 				B556404C3F39D456547A346C /* RootView.swift */,
 				0D6C682CBD7C9AE777EA147A /* Journey */,
+				F7D391306B53669BB0BAB8A7 /* Places */,
 				F89729A1CC5FC40FCE13D1D0 /* Planning */,
 				D9A2029E8A398365D1EF6C62 /* Platform */,
 				4B135915FF42EB626C9B4DC5 /* Resources */,
 				6C626C41D858C65F4C060ACD /* Services */,
+				36EA697992ADD1911DF6AAF3 /* Settings */,
 				48DA2BDCAA721EB7439C7B32 /* Support */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		F7D391306B53669BB0BAB8A7 /* Places */ = {
+			isa = PBXGroup;
+			children = (
+				739D39DBBC1BC0F297CE9326 /* PlaceHistoryStore.swift */,
+			);
+			path = Places;
 			sourceTree = "<group>";
 		};
 		F89729A1CC5FC40FCE13D1D0 /* Planning */ = {
@@ -167,6 +233,8 @@
 				1DA8E64B635341EA527DD879 /* DestinationMap.swift */,
 				9A0CD7DC80797131F2A5E220 /* PlaceSearchModel.swift */,
 				D06C6E86833781C133B1D776 /* PlanView.swift */,
+				E5591A273231B7715ED25270 /* ReadinessSheet.swift */,
+				B2C0700C0E860FF9B901356A /* SavedPlacesBar.swift */,
 				EB2FD02F2E3CC1804698F3E0 /* SearchSuggestionRow.swift */,
 			);
 			path = Planning;
@@ -237,6 +305,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CEF1769DDAEB015A7DAC0C5 /* Alarm.caf in Resources */,
 				DE34406953E1052427A587BC /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -250,24 +319,37 @@
 			files = (
 				BDC97BBD231B71201D0A4198 /* AlarmService.swift in Sources */,
 				D83F7EB454A3A0C73F1E0F2B /* AlarmSettingsPanel.swift in Sources */,
+				EA3948BA65242FC05B764E46 /* AlarmSoundPlayer.swift in Sources */,
+				AEBF10A55AEB2FC5AC0BE257 /* AlarmSounding.swift in Sources */,
 				9E3EBBAD129FE32046EE84C6 /* AlarmView.swift in Sources */,
 				7AB110D33E251CBF4E9A0D9F /* AppDependencies.swift in Sources */,
+				457FBBFCBED0BB1E15F415CA /* ArrivalCard.swift in Sources */,
 				A43174AAABADC2587EE19DD3 /* DestinationArrivalApp.swift in Sources */,
 				894CF71FB26E51833ECF3159 /* DestinationMap.swift in Sources */,
 				5B15936DE65F35236237E380 /* DeviceLocationService.swift in Sources */,
+				D59E5E014EB6A24D4268505B /* DeviceReadinessProbe.swift in Sources */,
+				A96125CEB18758FB51D35274 /* DistanceUnit.swift in Sources */,
 				9DE4C6D2E6C9FFCE43B1C964 /* Formatting.swift in Sources */,
 				E326A005F265752A2C1BFA6A /* JourneyModel.swift in Sources */,
 				E8807B6CAC2885E90FBC1D01 /* LiveAlarmService.swift in Sources */,
 				E3E6F2E9078F9E197008D4D3 /* LiveDependencies.swift in Sources */,
 				8E86E58DFB4A980530FA3120 /* LocalPlaceSearch.swift in Sources */,
 				28A5C877903C3DDB0BB52B3E /* LocationService.swift in Sources */,
+				E5949ACEE8887DF99A44E6C9 /* PlaceHistoryStore.swift in Sources */,
 				D0CA9C1EC0A3CDCFE06859DF /* PlaceSearchModel.swift in Sources */,
 				0974E8075C6F87C390555B0C /* PlaceSearching.swift in Sources */,
 				F697DF9E3676CF3AD1FA45EA /* PlanView.swift in Sources */,
+				0FFB523F19BA51641E4AFB37 /* ReadinessProbing.swift in Sources */,
+				A952FE96FD5C8DA62CD3726A /* ReadinessSheet.swift in Sources */,
 				9547BECC532DEC92D849CF8D /* RootView.swift in Sources */,
+				5CFC960BB844C68F38D06FE9 /* SavedPlacesBar.swift in Sources */,
 				01917A83FE6F7B575113AA0D /* SearchSuggestionRow.swift in Sources */,
 				7E1DD2C233C58BA59858CA3F /* ServiceArea+MapKit.swift in Sources */,
+				2C1996943512467455F71BB0 /* SettingsStore.swift in Sources */,
+				57FC572E9E9A74DA1E6C3395 /* SettingsView.swift in Sources */,
+				908667918F5432C2C2D77194 /* StatusChip.swift in Sources */,
 				67A2868CB2A318AF2FC34ABE /* TrackingView.swift in Sources */,
+				01157D1CC547B5C491D2238D /* TunnelSimulator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

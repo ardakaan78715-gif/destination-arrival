@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="destination-arrival" xmlns="http://www.topografix.com/GPX/1/1">
+  <wpt lat="51.5793" lon="-0.3366">
+    <time>2026-01-05T07:58:30Z</time>
+    <name>Harrow-on-the-Hill</name>
+  </wpt>
+  <wpt lat="51.5793" lon="-0.3366">
+    <time>2026-01-05T08:00:00Z</time>
+    <name>Harrow-on-the-Hill</name>
+  </wpt>
+  <wpt lat="51.5784" lon="-0.3184">
+    <time>2026-01-05T08:01:40Z</time>
+    <name>Northwick Park</name>
+  </wpt>
+  <wpt lat="51.5784" lon="-0.3184">
+    <time>2026-01-05T08:02:10Z</time>
+    <name>Northwick Park</name>
+  </wpt>
+  <wpt lat="51.5720" lon="-0.2954">
+    <time>2026-01-05T08:04:00Z</time>
+    <name>Preston Road</name>
+  </wpt>
+  <wpt lat="51.5720" lon="-0.2954">
+    <time>2026-01-05T08:04:30Z</time>
+    <name>Preston Road</name>
+  </wpt>
+  <wpt lat="51.5635" lon="-0.2795">
+    <time>2026-01-05T08:06:00Z</time>
+    <name>Wembley Park</name>
+  </wpt>
+  <wpt lat="51.5635" lon="-0.2795">
+    <time>2026-01-05T08:06:40Z</time>
+    <name>Wembley Park</name>
+  </wpt>
+  <wpt lat="51.5542" lon="-0.2503">
+    <time>2026-01-05T08:08:40Z</time>
+    <name>Neasden</name>
+  </wpt>
+  <wpt lat="51.5520" lon="-0.2387">
+    <time>2026-01-05T08:09:24Z</time>
+    <name>Dollis Hill</name>
+  </wpt>
+  <wpt lat="51.5492" lon="-0.2215">
+    <time>2026-01-05T08:10:26Z</time>
+    <name>Willesden Green</name>
+  </wpt>
+  <wpt lat="51.5471" lon="-0.2047">
+    <time>2026-01-05T08:11:26Z</time>
+    <name>Kilburn</name>
+  </wpt>
+  <wpt lat="51.5469" lon="-0.1906">
+    <time>2026-01-05T08:12:18Z</time>
+    <name>West Hampstead</name>
+  </wpt>
+  <wpt lat="51.5472" lon="-0.1803">
+    <time>2026-01-05T08:13:06Z</time>
+    <name>Finchley Road</name>
+  </wpt>
+  <wpt lat="51.5472" lon="-0.1803">
+    <time>2026-01-05T08:13:46Z</time>
+    <name>Finchley Road</name>
+    <type>tunnel</type>
+  </wpt>
+  <wpt lat="51.5432" lon="-0.1745">
+    <time>2026-01-05T08:14:31Z</time>
+    <name>Swiss Cottage (disused)</name>
+    <type>tunnel</type>
+  </wpt>
+  <wpt lat="51.5375" lon="-0.1735">
+    <time>2026-01-05T08:15:16Z</time>
+    <name>Marlborough Road (disused)</name>
+    <type>tunnel</type>
+  </wpt>
+  <wpt lat="51.5300" lon="-0.1700">
+    <time>2026-01-05T08:16:16Z</time>
+    <name>Lord's (disused)</name>
+    <type>tunnel</type>
+  </wpt>
+  <wpt lat="51.5226" lon="-0.1571">
+    <time>2026-01-05T08:17:46Z</time>
+    <name>Baker Street</name>
+    <type>tunnel</type>
+  </wpt>
+</gpx>

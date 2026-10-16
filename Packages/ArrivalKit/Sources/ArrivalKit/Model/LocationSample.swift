@@ -31,6 +31,10 @@ public struct LocationSample: Sendable, Hashable {
         location.distance(from: other.location)
     }
 
+    public func closestPossibleDistance(to destination: Destination) -> Double {
+        max(0, distance(to: destination) - horizontalAccuracy)
+    }
+
     private var location: CLLocation {
         CLLocation(latitude: latitude, longitude: longitude)
     }

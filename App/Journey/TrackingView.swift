@@ -4,6 +4,7 @@ import SwiftUI
 
 struct TrackingView: View {
     @Environment(JourneyModel.self) private var journeyModel
+    @Environment(\.openURL) private var openURL
     @State private var position = MapCameraPosition.automatic
 
     var body: some View {
@@ -17,25 +18,38 @@ struct TrackingView: View {
                 MapCompass()
                 MapScaleView()
             }
+            .accessibilityLabel("Map of your journey to \(journey.destination.name)")
+            .safeAreaInset(edge: .top) {
+                if journeyModel.notice == .locationLost {
+                    locationLostBanner(journey)
+                }
+            }
             .safeAreaInset(edge: .bottom) {
-                journeyCard(journey)
+                journeyPanel(journey)
+            }
+            .onChange(of: journeyModel.notice) { _, notice in
+                if notice == .locationLost {
+                    AccessibilityNotification.Announcement(
+                        Formatting.locationLost(backupAlarm: journey.scheduledBackup)
+                    ).post()
+                }
             }
         }
     }
 
-    private func journeyCard(_ journey: Journey) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(journey.destination.name)
-                .font(.headline)
-            Text(arrivalLine(for: journey.estimate))
-                .font(.title2.bold())
-            Text(distanceLine(for: journey))
-                .font(.subheadline)
+    private func journeyPanel(_ journey: Journey) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                ArrivalCard(journey: journey, unit: journeyModel.distanceUnit, now: context.date)
+                    .onChange(of: isSignalLost(journey, at: context.date)) { _, isLost in
+                        announceSignal(isLost: isLost)
+                    }
+            }
+            Text("Keep Destination Arrival open in the background. Swiping it away stops tracking.")
+                .font(.footnote)
                 .foregroundStyle(.secondary)
-            if let notice = journeyModel.notice {
-                Label(notice.message, systemImage: "exclamationmark.triangle.fill")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+            if let tunnel = journeyModel.tunnel {
+                TunnelToggle(tunnel: tunnel)
             }
             Button(role: .destructive) {
                 journeyModel.cancel()
@@ -54,18 +68,40 @@ struct TrackingView: View {
         .padding(.bottom, 8)
     }
 
-    private func arrivalLine(for estimate: ArrivalEstimate?) -> String {
-        guard let timeRemaining = estimate?.timeRemaining else {
-            return "Measuring your speed…"
+    private func locationLostBanner(_ journey: Journey) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(Formatting.locationLost(backupAlarm: journey.scheduledBackup), systemImage: "location.slash.fill")
+                .font(.subheadline.weight(.semibold))
+            if let settingsURL = journeyModel.settingsURL {
+                Button("Open Settings") {
+                    openURL(settingsURL)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+            }
         }
-        return "About \(Formatting.duration(timeRemaining)) to go"
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .padding(.horizontal)
+        .padding(.top, 8)
     }
 
-    private func distanceLine(for journey: Journey) -> String {
-        let alarm = "Alarm \(Formatting.leadTime(journey.settings.leadTime)) before arrival"
-        guard let estimate = journey.estimate else {
-            return "Finding your location… · \(alarm)"
-        }
-        return "\(Formatting.distance(estimate.distance)) away · \(alarm)"
+    private func isSignalLost(_ journey: Journey, at date: Date) -> Bool {
+        journey.estimate?.isSignalLost(at: date) ?? false
+    }
+
+    private func announceSignal(isLost: Bool) {
+        let message = isLost ? "No signal. Estimating from your last position." : "Signal is back."
+        AccessibilityNotification.Announcement(message).post()
+    }
+}
+
+private struct TunnelToggle: View {
+    @Bindable var tunnel: TunnelSimulator
+
+    var body: some View {
+        Toggle("Simulate a tunnel", isOn: $tunnel.isInTunnel)
+            .font(.subheadline)
     }
 }
