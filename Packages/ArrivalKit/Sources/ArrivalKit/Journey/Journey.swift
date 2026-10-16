@@ -5,6 +5,7 @@ public struct Journey: Sendable, Equatable {
     public let settings: AlarmSettings
     public private(set) var phase: JourneyPhase = .ready
     public private(set) var estimate: ArrivalEstimate?
+    public private(set) var precision: TrackingPrecision = .economy
     private let tuning: ArrivalTuning
     private var fixFilter: FixFilter?
     private var speedEstimator: CruiseSpeedEstimator
@@ -21,7 +22,7 @@ public struct Journey: Sendable, Equatable {
         case (.ready, .started(let date)):
             phase = .tracking
             fixFilter = FixFilter(journeyStart: date, tuning: tuning)
-            return [.startLocationUpdates]
+            return [.startLocationUpdates(precision)]
         case (.tracking, .locationReceived(let fix)):
             return track(fix)
         case (.tracking, .clockTicked(let date)):
@@ -52,8 +53,19 @@ public struct Journey: Sendable, Equatable {
     }
 
     private mutating func evaluate(at date: Date) -> [JourneyEffect] {
-        guard let reason = estimate?.alarmReason(at: date) else { return [] }
-        phase = .ringing(reason)
-        return [.stopLocationUpdates, .ringAlarm(reason)]
+        guard let estimate else { return [] }
+        if let reason = estimate.alarmReason(at: date) {
+            phase = .ringing(reason)
+            return [.stopLocationUpdates, .ringAlarm(reason)]
+        }
+        return refinePrecision(for: estimate, at: date)
+    }
+
+    private mutating func refinePrecision(for estimate: ArrivalEstimate, at date: Date) -> [JourneyEffect] {
+        guard precision == .economy, TrackingPrecision.required(for: estimate, at: date) == .precise else {
+            return []
+        }
+        precision = .precise
+        return [.changePrecision(.precise)]
     }
 }

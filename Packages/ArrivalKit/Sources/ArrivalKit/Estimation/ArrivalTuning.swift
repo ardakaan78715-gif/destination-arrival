@@ -13,6 +13,8 @@ public struct ArrivalTuning: Sendable, Equatable {
     public var signalLossAfter: TimeInterval
     public var cautionFactor: Double
     public var fastTrainSpeed: Double
+    public var precisionDistance: Double
+    public var precisionTime: TimeInterval
 
     public static let standard = ArrivalTuning(
         maximumAccuracy: 200,
@@ -26,6 +28,8 @@ public struct ArrivalTuning: Sendable, Equatable {
         minimumMovingTime: 30,
         signalLossAfter: 45,
         cautionFactor: 1.1,
-        fastTrainSpeed: 15
+        fastTrainSpeed: 15,
+        precisionDistance: 5_000,
+        precisionTime: 600
     )
 }

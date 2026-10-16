@@ -8,7 +8,7 @@ import Testing
     @Test func startEmitsLocationUpdates() {
         var journey = Journey(destination: route.destination(afterMetres: 5_000), settings: settings)
 
-        #expect(journey.handle(.started(FixBuilder.startDate)) == [.startLocationUpdates])
+        #expect(journey.handle(.started(FixBuilder.startDate)) == [.startLocationUpdates(.economy)])
         #expect(journey.phase == .tracking)
     }
 
@@ -23,7 +23,7 @@ import Testing
     @Test func ringsWithinLeadTime() throws {
         var journey = startedJourney(metresAway: 3_000)
 
-        let effects = firstEffects(feeding: route.samples(), to: &journey)
+        let effects = ringingEffects(feeding: route.samples(), to: &journey)
 
         #expect(effects == [.stopLocationUpdates, .ringAlarm(.withinLeadTime)])
         let estimate = try #require(journey.estimate)
@@ -35,7 +35,7 @@ import Testing
 
     @Test func ringsExactlyOnce() {
         var journey = startedJourney(metresAway: 3_000)
-        _ = firstEffects(feeding: route.samples(), to: &journey)
+        _ = ringingEffects(feeding: route.samples(), to: &journey)
         let phase = journey.phase
 
         let later = route.samples().flatMap { journey.handle(.locationReceived($0)) }
@@ -46,7 +46,7 @@ import Testing
 
     @Test func stopSilencesAndFinishes() {
         var journey = startedJourney(metresAway: 3_000)
-        _ = firstEffects(feeding: route.samples(), to: &journey)
+        _ = ringingEffects(feeding: route.samples(), to: &journey)
 
         #expect(journey.handle(.alarmStopped) == [.silenceAlarm])
         #expect(journey.phase == .finished)
@@ -55,7 +55,7 @@ import Testing
 
     @Test func cancelWhileRingingSilences() {
         var journey = startedJourney(metresAway: 3_000)
-        _ = firstEffects(feeding: route.samples(), to: &journey)
+        _ = ringingEffects(feeding: route.samples(), to: &journey)
 
         #expect(journey.handle(.cancelled) == [.silenceAlarm])
         #expect(journey.phase == .finished)
@@ -66,7 +66,7 @@ import Testing
 
         #expect(journey.handle(.cancelled) == [.stopLocationUpdates])
         #expect(journey.phase == .finished)
-        #expect(firstEffects(feeding: route.samples(), to: &journey).isEmpty)
+        #expect(route.samples().flatMap { journey.handle(.locationReceived($0)) }.isEmpty)
     }
 
     @Test func ignoresEventsBeforeStart() {
@@ -83,7 +83,7 @@ import Testing
         var journey = startedJourney(metresAway: 5_000)
         let platform = FixBuilder(speed: 0, count: 1_800)
 
-        #expect(firstEffects(feeding: platform.samples(), to: &journey).isEmpty)
+        #expect(ringingEffects(feeding: platform.samples(), to: &journey).isEmpty)
         #expect(journey.phase == .tracking)
         #expect(journey.estimate?.isMoving == false)
     }
@@ -126,7 +126,7 @@ import Testing
         var journey = startedJourney(metresAway: 1_500)
         let platform = FixBuilder(speed: 0, count: 1_800).jittered(maxMetres: 8, seed: 3)
 
-        #expect(firstEffects(feeding: platform.samples(), to: &journey).isEmpty)
+        #expect(ringingEffects(feeding: platform.samples(), to: &journey).isEmpty)
         #expect(journey.phase == .tracking)
         #expect(journey.estimate?.speedSource == .assumed)
     }
@@ -137,10 +137,10 @@ import Testing
         return journey
     }
 
-    private func firstEffects(feeding samples: [LocationSample], to journey: inout Journey) -> [JourneyEffect] {
+    private func ringingEffects(feeding samples: [LocationSample], to journey: inout Journey) -> [JourneyEffect] {
         for sample in samples {
             let effects = journey.handle(.locationReceived(sample))
-            if !effects.isEmpty {
+            if case .ringing = journey.phase {
                 return effects
             }
         }

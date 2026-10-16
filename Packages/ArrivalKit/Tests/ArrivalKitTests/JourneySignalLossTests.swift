@@ -28,7 +28,7 @@ import Testing
             effects += journey.handle(.clockTicked(fix.timestamp + 0.5))
         }
 
-        #expect(effects.isEmpty)
+        #expect(effects == [.changePrecision(.precise)])
         #expect(journey.phase == .tracking)
         #expect(journey.estimate?.speedSource == .assumed)
     }

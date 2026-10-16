@@ -31,6 +31,9 @@ struct TrackingView: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
+            Text("Keep Destination Arrival open in the background. Swiping it away stops tracking.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
             Button(role: .destructive) {
                 journeyModel.cancel()
             } label: {

@@ -6,11 +6,11 @@ final class DeviceLocationService: NSObject, LocationService {
     private let manager = CLLocationManager()
     private var permissionRequests: [CheckedContinuation<Bool, Never>] = []
     private var samples: AsyncStream<LocationSample>.Continuation?
+    private var backgroundActivity: CLBackgroundActivitySession?
 
     override init() {
         super.init()
         manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyBest
         manager.distanceFilter = kCLDistanceFilterNone
         manager.activityType = .otherNavigation
     }
@@ -31,21 +31,43 @@ final class DeviceLocationService: NSObject, LocationService {
         }
     }
 
-    func start() -> AsyncStream<LocationSample> {
+    func start(precision: TrackingPrecision) -> AsyncStream<LocationSample> {
         samples?.finish()
         let (stream, continuation) = AsyncStream.makeStream(
             of: LocationSample.self,
             bufferingPolicy: .bufferingNewest(16)
         )
         samples = continuation
+        setPrecision(precision)
+        manager.allowsBackgroundLocationUpdates = true
+        manager.showsBackgroundLocationIndicator = true
+        manager.pausesLocationUpdatesAutomatically = false
+        backgroundActivity?.invalidate()
+        backgroundActivity = CLBackgroundActivitySession()
         manager.startUpdatingLocation()
         return stream
     }
 
+    func setPrecision(_ precision: TrackingPrecision) {
+        manager.desiredAccuracy = Self.desiredAccuracy(for: precision)
+    }
+
     func stop() {
         manager.stopUpdatingLocation()
+        manager.allowsBackgroundLocationUpdates = false
+        backgroundActivity?.invalidate()
+        backgroundActivity = nil
         samples?.finish()
         samples = nil
+    }
+
+    private static func desiredAccuracy(for precision: TrackingPrecision) -> CLLocationAccuracy {
+        switch precision {
+        case .economy:
+            kCLLocationAccuracyHundredMeters
+        case .precise:
+            kCLLocationAccuracyBest
+        }
     }
 
     private func authorizationChanged(to status: CLAuthorizationStatus) {

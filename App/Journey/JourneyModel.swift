@@ -115,9 +115,11 @@ final class JourneyModel {
 
     private func perform(_ effect: JourneyEffect) {
         switch effect {
-        case .startLocationUpdates:
-            follow(location.start())
+        case .startLocationUpdates(let precision):
+            follow(location.start(precision: precision))
             startClock()
+        case .changePrecision(let precision):
+            location.setPrecision(precision)
         case .stopLocationUpdates:
             location.stop()
             clockTask?.cancel()
