@@ -14,6 +14,7 @@ import Testing
         #expect(journey.handle(.clockTicked(estimate.alarmDate - 1)).isEmpty)
         #expect(journey.handle(.clockTicked(estimate.alarmDate)) == [
             .stopLocationUpdates,
+            .cancelBackupAlarm,
             .ringAlarm(.projectedDuringSignalLoss),
         ])
     }
@@ -44,9 +45,10 @@ import Testing
             #expect(journey.handle(.clockTicked(lastFix.timestamp + seconds)).isEmpty)
         }
         let afterHold = run.sample(afterMetres: run.travelled(after: lastElapsed) + 450, elapsed: lastElapsed + heldFor)
-        #expect(journey.handle(.locationReceived(afterHold)).isEmpty)
+        let effects = journey.handle(.locationReceived(afterHold))
 
         let rescheduled = try #require(journey.estimate?.alarmDate)
+        #expect(effects == [.scheduleBackupAlarm(rescheduled)])
         #expect(rescheduled.timeIntervalSince(projected) > 60)
         #expect(journey.handle(.clockTicked(projected + 1)).isEmpty)
         #expect(journey.phase == .tracking)

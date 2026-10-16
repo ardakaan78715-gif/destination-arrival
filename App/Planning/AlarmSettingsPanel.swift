@@ -14,7 +14,7 @@ struct AlarmSettingsPanel: View {
                 Text("Search or tap the map to choose where you're going")
                     .font(.headline)
             }
-            if let notice = journeyModel.notice {
+            ForEach(journeyModel.notices, id: \.self) { notice in
                 Label(notice.message, systemImage: "exclamationmark.triangle.fill")
                     .font(.footnote)
                     .foregroundStyle(.secondary)

@@ -11,10 +11,11 @@ final class JourneyModel {
         case ringing(AlarmReason)
     }
 
-    enum Notice: Equatable {
+    enum Notice: Hashable {
         case outsideLondon
         case locationDenied
         case notificationsOff
+        case volumeLow
 
         var message: String {
             switch self {
@@ -24,6 +25,8 @@ final class JourneyModel {
                 "Location is off for Destination Arrival. Turn it on in Settings so the alarm knows where you are."
             case .notificationsOff:
                 "Notifications are off. The alarm can only sound while the app is running."
+            case .volumeLow:
+                "Turn your volume up. The alarm uses media volume."
             }
         }
     }
@@ -31,7 +34,7 @@ final class JourneyModel {
     var draft: Destination?
     var settings = AlarmSettings()
     private(set) var journey: Journey?
-    private(set) var notice: Notice?
+    private(set) var notices: [Notice] = []
     private(set) var isStarting = false
 
     @ObservationIgnored private let location: any LocationService
@@ -42,6 +45,8 @@ final class JourneyModel {
     init(location: any LocationService, alarms: any AlarmService) {
         self.location = location
         self.alarms = alarms
+        alarms.onStopRequested = { [weak self] in self?.stopAlarm() }
+        alarms.onBackupDelivered = { [weak self] in self?.send(.backupAlarmFired) }
     }
 
     var screen: Screen {
@@ -57,13 +62,13 @@ final class JourneyModel {
 
     func select(_ destination: Destination) {
         draft = destination
-        notice = nil
+        notices = []
     }
 
     func dropPin(at coordinate: CLLocationCoordinate2D) {
         let pin = Destination.droppedPin(latitude: coordinate.latitude, longitude: coordinate.longitude)
         guard ServiceArea.london.contains(pin) else {
-            notice = .outsideLondon
+            notices = [.outsideLondon]
             return
         }
         select(pin)
@@ -72,30 +77,49 @@ final class JourneyModel {
     func start() async {
         guard let draft, journey == nil, !isStarting else { return }
         guard ServiceArea.london.contains(draft) else {
-            notice = .outsideLondon
+            notices = [.outsideLondon]
             return
         }
         isStarting = true
         defer { isStarting = false }
 
         guard await location.requestPermission() else {
-            notice = .locationDenied
+            notices = [.locationDenied]
             return
         }
         let notificationsAllowed = await alarms.requestPermission()
-        notice = notificationsAllowed ? nil : .notificationsOff
+        notices = warnings(notificationsAllowed: notificationsAllowed)
         journey = Journey(destination: draft, settings: settings)
         send(.started(.now))
     }
 
     func stopAlarm() {
-        send(.alarmStopped)
-        endJourney()
+        switch journey?.phase {
+        case .ringing:
+            send(.alarmStopped)
+            endJourney()
+        case .tracking:
+            cancel()
+            alarms.silence()
+        case .ready, .finished, nil:
+            alarms.silence()
+        }
     }
 
     func cancel() {
         send(.cancelled)
         endJourney()
+    }
+
+    private func warnings(notificationsAllowed: Bool) -> [Notice] {
+        var warnings: [Notice] = []
+        if !notificationsAllowed {
+            warnings.append(.notificationsOff)
+        }
+        if alarms.isVolumeLow {
+            warnings.append(.volumeLow)
+        }
+        return warnings
     }
 
     private func endJourney() {
@@ -123,6 +147,12 @@ final class JourneyModel {
         case .stopLocationUpdates:
             location.stop()
             clockTask?.cancel()
+        case .scheduleBackupAlarm(let date):
+            if let journey {
+                alarms.scheduleBackup(at: date, for: journey)
+            }
+        case .cancelBackupAlarm:
+            alarms.cancelBackup()
         case .ringAlarm(let reason):
             if let journey {
                 alarms.ring(for: journey, reason: reason)

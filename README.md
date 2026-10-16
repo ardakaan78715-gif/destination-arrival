@@ -17,9 +17,8 @@ You nod off on the train and wake up two stops too late. Map apps will show you 
 - Ignores GPS glitches and platform jitter, and keeps its speed estimate through station stops.
 - Keeps counting down when the GPS signal disappears in a tunnel, and rings on that projection instead of waiting for a fix that may never come.
 - Keeps tracking with the phone locked or another app in front, under When In Use permission, starting at a battery-saving accuracy and sharpening it as you near the stop.
-- Rings with a full-screen alert and a notification, then stops with one large **I'm awake** button.
-
-With the phone locked, the alarm currently arrives as a notification with the standard sound, which follows the silent switch. A looping tone that plays through the silent switch, and a backup alarm held by iOS, are next on the [roadmap](#roadmap).
+- Rings with a looping tone that plays even with the silent switch on, a full-screen alert and a lock-screen notification. One large **I'm awake** button, or **Stop** on the notification without unlocking, ends it.
+- Keeps a backup alarm with iOS at the projected alarm time, so the phone still alerts you if iOS stops the app on the way.
 
 ## How it decides when to wake you
 
@@ -29,7 +28,7 @@ Every rule below lives in the ArrivalKit package, behind `Journey.handle(_:)`, a
 2. **Measure the cruise speed.** Fixes accurate to 100 m or better become speed points at least 10 seconds apart. A step between two points counts as moving only when it covers more ground than the fixes' accuracy and averages at least 2.5 m/s. The cruise speed is the moving distance divided by the moving time over the last 3 minutes, once at least 30 seconds of movement has been seen. It is worked out again only when a new moving step arrives, so station dwells and platform jitter never drag it towards zero, and braking into a station cannot pull it down while the train waits. The last measured speed is kept through stops.
 3. **Take the pessimistic distance.** The straight-line distance to the stop is reduced by the fix's accuracy, giving the closest the phone could be. A coarse 150 m station Wi-Fi fix still counts, but it can only bring the alarm forward.
 4. **Estimate the time to arrival** as that distance divided by the cruise speed. Until a speed has been measured, it assumes 15 m/s, which is faster than any London Underground line's average.
-5. **Work out one alarm time.** The alarm distance is `max(cruise speed × lead time, radius)`. The alarm time is the moment the train, projected forward from the last fix, reaches that distance. Everything that rings uses this one date.
+5. **Work out one alarm time.** The alarm distance is `max(cruise speed × lead time, radius)`. The alarm time is the moment the train, projected forward from the last fix, reaches that distance. Everything that rings uses this one date: the in-app alarm and the backup held by iOS.
 6. **Check on every fix and every 10 seconds.** The alarm rings when you are inside the radius, or once the alarm time has come. At the moment of a fix this is exactly "time to arrival at most the lead time, or inside the radius". An assumed speed only counts once the signal has been lost, so jitter while standing on a platform is never mistaken for a train about to arrive.
 7. **Ring exactly once.** Late fixes and clock ticks after the alarm are ignored.
 
@@ -61,6 +60,7 @@ The constants live in `ArrivalTuning.standard`, which is passed into `Journey` s
 | `cautionFactor` | 1.1 | Between fixes, assume the train is 10% faster than measured |
 | `fastTrainSpeed` | 15 m/s | Speed used when none has been measured, and the floor for projections. Faster than any London Underground average, Elizabeth line included |
 | `precisionDistance` / `precisionTime` | 5 km / 600 s | Switch to precise tracking inside either |
+| `backupRescheduleThreshold` | 20 s | Move the backup alarm held by iOS only when the alarm time shifts by more than this |
 
 ## Designed for the Underground
 
@@ -96,6 +96,31 @@ Each row is a replay in `RouteJourneyTests`. On the surface the replay sends a f
 
 The routes are synthetic: straight lines between public station locations with invented timings, not TfL data.
 
+## Making sure you hear it
+
+An alarm that does not wake you is worse than none, so the app rings in layers. Every layer uses the same alarm time.
+
+1. **A loud tone while the app runs.** This is the normal case: background location keeps the app running for the whole journey. When the alarm is due, the app loops a 25-second tone on a `.playback` audio session, which plays even with the silent switch on. The session ducks other audio, so a podcast gets quieter instead of stopping, and that also lets the tone start while the app is in the background. The `audio` background mode keeps the tone playing after location updates stop. The full-screen alert has one large **I'm awake** button.
+2. **A notification on the lock screen.** At the same moment the app posts "Nearly at Baker Street" with a **Stop** button. Stop works from the lock screen without unlocking or opening the app; it silences the tone and ends the journey. With the app open, the notification appears as a banner without a second sound, because the tone is already playing.
+3. **A backup held by iOS.** In case iOS stops the app on the way, after a crash, under memory pressure or because it was swiped away, the journey keeps two notifications scheduled with iOS: one at the projected alarm time and a follow-up a minute later, each with the 25-second tone. They are moved only when the alarm time shifts by more than 20 seconds, so a steady journey does not keep rescheduling them, and they are cancelled as soon as the in-app alarm rings or the journey ends. If one arrives while the app is open, the loud alarm takes over. If the app had been closed, tapping **Stop** removes the follow-up.
+
+### Silent switch and Focus
+
+| Situation | Silent switch on | Focus on |
+|---|---|---|
+| App running in the background (normal while tracking) | The tone rings; the notification lights the screen and vibrates | The tone rings; the notification is held unless the app is allowed in that Focus |
+| App closed or stopped by iOS | The backup notifications light the screen and vibrate, with no sound | Held unless the app is allowed in that Focus |
+
+Critical alerts and time-sensitive notifications could break through more of these cases, but critical alerts need an entitlement that Apple grants on request, and time-sensitive notifications need a capability that a free developer account may not offer. The app uses neither and needs no entitlements at all.
+
+### Tips
+
+- **Turn the volume up.** The tone follows the media volume, not the ringer, so the app warns you at the start of a journey if the volume is low.
+- **Allow the app in your Focus modes.** Add Destination Arrival to the allowed apps of any Focus you use while travelling, such as Sleep, so its notifications come through.
+- **Leave it running.** Keep the app open in the background rather than swiping it away. The backup still fires if you do, but only as notifications, which follow the silent switch.
+
+The alarm sound, `App/Resources/Alarm.caf`, is a synthesised two-tone beep at 880 Hz and 1320 Hz, generated in code rather than recorded or licensed. It lasts 25 seconds, inside the 30-second limit iOS sets for notification sounds.
+
 ## Battery
 
 A journey can last an hour or more, so the app spends as little power on location as it can while still waking you in time.
@@ -110,7 +135,7 @@ A journey can last an hour or more, so the app spends as little power on locatio
 - **Background location.** The app declares the `location` background mode. When you tap **Start journey**, it turns on `allowsBackgroundLocationUpdates`, switches off automatic pausing, which would otherwise stop updates while a train waits at a platform, and holds a `CLBackgroundActivitySession` until the journey ends. Fixes keep arriving with the phone locked or another app in front.
 - **When In Use is enough.** The app only ever asks for When In Use permission, never Always. iOS lets an app keep receiving location in the background when it started the updates while you were using it.
 - **The blue indicator.** While a journey runs, iOS shows a blue location indicator in the status bar, so it is always clear that the app is following you. Tapping it opens the app. It goes away when the alarm rings or the journey ends.
-- **Leave it running.** Closing the app from the app switcher ends tracking, and the app does not yet pick a journey back up after a relaunch. The tracking screen says to keep it open in the background.
+- **Leave it running.** Closing the app from the app switcher ends tracking, and the app does not yet pick a journey back up after a relaunch. The backup alarm held by iOS still fires at the last projected time. The tracking screen says to keep the app open in the background.
 
 ## Architecture
 
@@ -119,21 +144,22 @@ flowchart LR
     GPS["CLLocationManager"] -->|LocationSample| Model["JourneyModel"]
     Clock["10 s clock"] -->|Date| Model
     Views["SwiftUI views"] -->|"Start, End, I'm awake"| Model
+    Notifications["Notification Stop / backup"] -->|callback| Model
     Model -->|JourneyEvent| Reducer["Journey.handle(event)"]
     Reducer -->|"[JourneyEffect]"| Model
     Model -->|"start / precision / stop"| Location["LocationService"]
-    Model -->|"ring / silence"| Alarm["AlarmService"]
+    Model -->|"ring / silence / backup"| Alarm["AlarmService"]
     Model -->|"observed state"| Views
 ```
 
 | Folder | Role |
 |---|---|
 | `Packages/ArrivalKit` | Pure Swift package with every decision: models, fix filtering, cruise speed, the arrival estimate and the `Journey` state machine. It uses only Foundation and CoreLocation types and is fully unit-tested. |
-| `App/Services` | Protocols for location, alarms and place search, plus implementations on UserNotifications and MapKit. |
-| `App/Platform` | The only folder that touches iOS-only APIs: the `CLLocationManager` wrapper with its background session, and the live composition of services. |
+| `App/Services` | Protocols for location, alarms, the alarm sound and place search, plus implementations on UserNotifications and MapKit. |
+| `App/Platform` | The only folder that touches iOS-only APIs: the `CLLocationManager` wrapper with its background session, the `AVAudioSession` tone player, and the live composition of services. |
 | `App/Planning`, `App/Journey` | `@Observable` models and SwiftUI screens for choosing a destination, tracking the journey and ringing. |
 
-**Why a reducer.** `Journey` is a value type that turns each event (journey started, location received, clock ticked, alarm stopped, cancelled) into a list of effects (start location updates at a precision, sharpen the precision, stop them, ring, silence). It has no clocks, timers or I/O, and time arrives inside the events. That makes it deterministic: every scenario is just a list of fixes and ticks, and the tests replay them on macOS. The app performs the effects through injected services and contains no arrival logic of its own.
+**Why a reducer.** `Journey` is a value type that turns each event (journey started, location received, clock ticked, backup alarm fired, alarm stopped, cancelled) into a list of effects (start location updates at a precision, sharpen the precision, stop them, schedule or cancel the backup alarm, ring, silence). It has no clocks, timers or I/O, and time arrives inside the events. That makes it deterministic: every scenario is just a list of fixes and ticks, and the tests replay them on macOS. The app performs the effects through injected services and contains no arrival logic of its own.
 
 ## Run it
 
@@ -150,7 +176,7 @@ The Xcode project is generated by XcodeGen from `project.yml`. After changing `p
 swift test --package-path Packages/ArrivalKit
 ```
 
-The tests use Swift Testing. ArrivalKit imports only Foundation and CoreLocation, so the whole suite runs on macOS with just the Swift toolchain: no Xcode, no simulator and no device. They cover the destination and settings models, the London service area and distance measurement; the fix filter's rules and their order; the cruise speed through steady runs, station dwells, platform jitter, coarse fixes and long gaps; the arrival estimate, its projection between fixes, its alarm time and its signal status; the journey state machine: starting, ignoring rejected fixes, ringing inside the radius, ringing within the lead time, ringing on the projection after signal loss, re-anchoring on a fresh fix, never ringing on jitter, ringing exactly once, stopping, cancelling and ignoring events before the start; the tracking precision: starting in economy, switching to precise within 5 km or 10 minutes, including on a projection through a tunnel, switching only once and never back; and whole journeys replayed fix by fix and tick by tick, from the scenario table above. Jittered fixes come from a seeded generator, so every run is identical.
+The tests use Swift Testing. ArrivalKit imports only Foundation and CoreLocation, so the whole suite runs on macOS with just the Swift toolchain: no Xcode, no simulator and no device. They cover the destination and settings models, the London service area and distance measurement; the fix filter's rules and their order; the cruise speed through steady runs, station dwells, platform jitter, coarse fixes and long gaps; the arrival estimate, its projection between fixes, its alarm time and its signal status; the journey state machine: starting, ignoring rejected fixes, ringing inside the radius, ringing within the lead time, ringing on the projection after signal loss, re-anchoring on a fresh fix, never ringing on jitter, ringing exactly once, stopping, cancelling and ignoring events before the start; the tracking precision: starting in economy, switching to precise within 5 km or 10 minutes, including on a projection through a tunnel, switching only once and never back; the backup alarm: scheduled once the estimate is armed, including when the signal is lost before any speed is measured, never while waiting on a platform with live GPS, moved only when the alarm time shifts by more than 20 seconds, cancelled by a ring or a cancel, and ringing when it fires during tracking but not after; and whole journeys replayed fix by fix and tick by tick, from the scenario table above. Jittered fixes come from a seeded generator, so every run is identical.
 
 ### Continuous integration
 
@@ -171,11 +197,11 @@ Everything stays on the device. There are no accounts, analytics or third-party 
 - **Boarding with no signal rings early.** Without a measured speed the app assumes a fast train, so on slower lines it can ring several minutes early, as in the Victoria line scenario. Any station fix on the way corrects the estimate.
 - **Looping routes ring early.** The estimate uses straight-line distance, so a line that swings away from the destination and back again rings sooner than it needs to.
 - **Search needs a signal.** Choose the destination before going underground. Dropping a pin on the map works without one.
-- **Closing the app ends the journey.** Swiping the app away from the app switcher stops tracking, and there is no backup alarm yet.
+- **Closing the app ends the journey.** Swiping the app away from the app switcher stops tracking. The backup alarm still fires at the last projected time, but it cannot follow a delayed train.
+- **A closed app cannot ring through the silent switch.** The backup notifications follow the silent switch, so with it on they only vibrate and light the screen.
 
 ## Roadmap
 
-- A loud alarm through the silent switch, a lock-screen Stop button and a backup alarm held by iOS
 - A timed Simulator demo route along the Metropolitan line
 - Settings for the wake radius and distance units, and a way to test the alarm
 - Recent and favourite destinations

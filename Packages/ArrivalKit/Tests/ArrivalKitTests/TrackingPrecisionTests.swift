@@ -11,7 +11,7 @@ import Testing
 
         #expect(journey.precision == .economy)
         #expect(journey.handle(.started(FixBuilder.startDate)) == [.startLocationUpdates(.economy)])
-        #expect(train.samples().flatMap { journey.handle(.locationReceived($0)) }.isEmpty)
+        #expect(train.samples().flatMap { journey.handle(.locationReceived($0)) }.ignoringBackupAlarms.isEmpty)
         #expect(journey.precision == .economy)
     }
 
@@ -51,7 +51,7 @@ import Testing
         let tickEffects = ticks.map { journey.handle(.clockTicked($0)) }
         let upgrade = ticks[try #require(tickEffects.firstIndex(of: [.changePrecision(.precise)]))]
 
-        #expect(fixEffects.isEmpty)
+        #expect(fixEffects.ignoringBackupAlarms.isEmpty)
         #expect(tickEffects.flatMap { $0 } == [.changePrecision(.precise)])
         #expect(estimate.isSignalLost(at: upgrade))
         #expect(estimate.timeRemaining(at: upgrade) <= 600)
@@ -67,7 +67,7 @@ import Testing
         let estimate = try #require(journey.estimate)
 
         #expect(effects.first == [.changePrecision(.precise)])
-        #expect(effects.flatMap { $0 } == [.changePrecision(.precise)])
+        #expect(effects.flatMap { $0 }.ignoringBackupAlarms == [.changePrecision(.precise)])
         #expect(estimate.speedSource == .measured)
         #expect(TrackingPrecision.required(for: estimate, at: estimate.anchor.timestamp) == .economy)
         #expect(journey.precision == .precise)
@@ -96,10 +96,23 @@ import Testing
 
     private func estimateAtUpgrade(feeding samples: [LocationSample], to journey: inout Journey) -> ArrivalEstimate? {
         for sample in samples {
-            if journey.handle(.locationReceived(sample)) == [.changePrecision(.precise)] {
+            if journey.handle(.locationReceived(sample)).contains(.changePrecision(.precise)) {
                 return journey.estimate
             }
         }
         return nil
+    }
+}
+
+private extension Sequence<JourneyEffect> {
+    var ignoringBackupAlarms: [JourneyEffect] {
+        filter { effect in
+            switch effect {
+            case .scheduleBackupAlarm, .cancelBackupAlarm:
+                false
+            default:
+                true
+            }
+        }
     }
 }

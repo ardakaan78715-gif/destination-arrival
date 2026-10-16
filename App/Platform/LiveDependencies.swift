@@ -3,7 +3,7 @@ extension AppDependencies {
     static func live() -> AppDependencies {
         AppDependencies(
             location: DeviceLocationService(),
-            alarms: LiveAlarmService(),
+            alarms: LiveAlarmService(sound: AlarmSoundPlayer()),
             search: LocalPlaceSearch()
         )
     }

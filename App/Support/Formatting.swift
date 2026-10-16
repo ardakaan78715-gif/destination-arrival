@@ -33,6 +33,8 @@ enum Formatting {
             "You're within \(distance(journey.settings.radius))."
         case .projectedDuringSignalLoss:
             "No signal since \(lastFixTime(of: journey)). You're probably close, so we woke you early rather than late."
+        case .scheduledBackup:
+            "Your backup alarm. Check where you are."
         }
     }
 

@@ -25,7 +25,7 @@ import Testing
 
         let effects = ringingEffects(feeding: route.samples(), to: &journey)
 
-        #expect(effects == [.stopLocationUpdates, .ringAlarm(.withinLeadTime)])
+        #expect(effects == [.stopLocationUpdates, .cancelBackupAlarm, .ringAlarm(.withinLeadTime)])
         let estimate = try #require(journey.estimate)
         #expect(estimate.isMoving)
         let timeRemaining = estimate.timeRemaining(at: estimate.anchor.timestamp)

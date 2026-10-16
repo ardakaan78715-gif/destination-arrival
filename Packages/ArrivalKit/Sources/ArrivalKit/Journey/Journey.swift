@@ -6,6 +6,7 @@ public struct Journey: Sendable, Equatable {
     public private(set) var phase: JourneyPhase = .ready
     public private(set) var estimate: ArrivalEstimate?
     public private(set) var precision: TrackingPrecision = .economy
+    public private(set) var scheduledBackup: Date?
     private let tuning: ArrivalTuning
     private var fixFilter: FixFilter?
     private var speedEstimator: CruiseSpeedEstimator
@@ -27,9 +28,11 @@ public struct Journey: Sendable, Equatable {
             return track(fix)
         case (.tracking, .clockTicked(let date)):
             return evaluate(at: date)
+        case (.tracking, .backupAlarmFired):
+            return ring(.scheduledBackup)
         case (.tracking, .cancelled):
             phase = .finished
-            return [.stopLocationUpdates]
+            return [.stopLocationUpdates] + cancelBackup()
         case (.ringing, .alarmStopped), (.ringing, .cancelled):
             phase = .finished
             return [.silenceAlarm]
@@ -55,10 +58,14 @@ public struct Journey: Sendable, Equatable {
     private mutating func evaluate(at date: Date) -> [JourneyEffect] {
         guard let estimate else { return [] }
         if let reason = estimate.alarmReason(at: date) {
-            phase = .ringing(reason)
-            return [.stopLocationUpdates, .ringAlarm(reason)]
+            return ring(reason)
         }
-        return refinePrecision(for: estimate, at: date)
+        return refinePrecision(for: estimate, at: date) + scheduleBackup(for: estimate, at: date)
+    }
+
+    private mutating func ring(_ reason: AlarmReason) -> [JourneyEffect] {
+        phase = .ringing(reason)
+        return [.stopLocationUpdates] + cancelBackup() + [.ringAlarm(reason)]
     }
 
     private mutating func refinePrecision(for estimate: ArrivalEstimate, at date: Date) -> [JourneyEffect] {
@@ -67,5 +74,21 @@ public struct Journey: Sendable, Equatable {
         }
         precision = .precise
         return [.changePrecision(.precise)]
+    }
+
+    private mutating func scheduleBackup(for estimate: ArrivalEstimate, at date: Date) -> [JourneyEffect] {
+        guard estimate.isArmed(at: date) else { return [] }
+        let alarmDate = estimate.alarmDate
+        if let scheduledBackup, abs(alarmDate.timeIntervalSince(scheduledBackup)) <= tuning.backupRescheduleThreshold {
+            return []
+        }
+        scheduledBackup = alarmDate
+        return [.scheduleBackupAlarm(alarmDate)]
+    }
+
+    private mutating func cancelBackup() -> [JourneyEffect] {
+        guard scheduledBackup != nil else { return [] }
+        scheduledBackup = nil
+        return [.cancelBackupAlarm]
     }
 }
