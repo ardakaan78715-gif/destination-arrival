@@ -26,8 +26,9 @@ import Testing
         let effects = firstEffects(feeding: route.samples(), to: &journey)
 
         #expect(effects == [.stopLocationUpdates, .ringAlarm(.withinLeadTime)])
-        #expect(journey.estimate?.isMoving == true)
-        let timeRemaining = try #require(journey.estimate?.timeRemaining)
+        let estimate = try #require(journey.estimate)
+        #expect(estimate.isMoving)
+        let timeRemaining = estimate.timeRemaining(at: estimate.anchor.timestamp)
         #expect(timeRemaining <= 120)
         #expect(timeRemaining > 115)
     }
@@ -118,7 +119,7 @@ import Testing
         stationWiFi.horizontalAccuracy = 150
 
         #expect(journey.handle(.locationReceived(stationWiFi)) == [.stopLocationUpdates, .ringAlarm(.insideRadius)])
-        #expect(journey.estimate?.speedSource == nil)
+        #expect(journey.estimate?.speedSource == .assumed)
     }
 
     @Test func jitterOutsideRadiusNeverRings() {
@@ -127,7 +128,7 @@ import Testing
 
         #expect(firstEffects(feeding: platform.samples(), to: &journey).isEmpty)
         #expect(journey.phase == .tracking)
-        #expect(journey.estimate?.speedSource == nil)
+        #expect(journey.estimate?.speedSource == .assumed)
     }
 
     private func startedJourney(metresAway metres: Double) -> Journey {

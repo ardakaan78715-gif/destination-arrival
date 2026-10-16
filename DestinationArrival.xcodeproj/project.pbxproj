@@ -10,12 +10,14 @@
 		01917A83FE6F7B575113AA0D /* SearchSuggestionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2FD02F2E3CC1804698F3E0 /* SearchSuggestionRow.swift */; };
 		0974E8075C6F87C390555B0C /* PlaceSearching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */; };
 		28A5C877903C3DDB0BB52B3E /* LocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B998E9FE971457FE81D6469 /* LocationService.swift */; };
+		457FBBFCBED0BB1E15F415CA /* ArrivalCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D092F8212DD9B3FC2030032 /* ArrivalCard.swift */; };
 		5B15936DE65F35236237E380 /* DeviceLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40815619939BB6E32D8FFF95 /* DeviceLocationService.swift */; };
 		67A2868CB2A318AF2FC34ABE /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97089FF793136C2EBFD084E5 /* TrackingView.swift */; };
 		7AB110D33E251CBF4E9A0D9F /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F67281ED16B60CD74A2FBAA /* AppDependencies.swift */; };
 		7E1DD2C233C58BA59858CA3F /* ServiceArea+MapKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E150F9157B99B1AEE077C0 /* ServiceArea+MapKit.swift */; };
 		894CF71FB26E51833ECF3159 /* DestinationMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DA8E64B635341EA527DD879 /* DestinationMap.swift */; };
 		8E86E58DFB4A980530FA3120 /* LocalPlaceSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1616507578CC03CA09EC389C /* LocalPlaceSearch.swift */; };
+		908667918F5432C2C2D77194 /* StatusChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C2557DCB49EDD5DCB54E8B3 /* StatusChip.swift */; };
 		9547BECC532DEC92D849CF8D /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B556404C3F39D456547A346C /* RootView.swift */; };
 		9DE4C6D2E6C9FFCE43B1C964 /* Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB08781CA9C86CE477803EAF /* Formatting.swift */; };
 		9E3EBBAD129FE32046EE84C6 /* AlarmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DC8C3496317BFB0772C4693 /* AlarmView.swift */; };
@@ -33,6 +35,7 @@
 
 /* Begin PBXFileReference section */
 		1616507578CC03CA09EC389C /* LocalPlaceSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPlaceSearch.swift; sourceTree = "<group>"; };
+		1C2557DCB49EDD5DCB54E8B3 /* StatusChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusChip.swift; sourceTree = "<group>"; };
 		1DA8E64B635341EA527DD879 /* DestinationMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationMap.swift; sourceTree = "<group>"; };
 		212960B2C21363BAF70DF863 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		23235D29C22A6D1D0772C898 /* DestinationArrivalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DestinationArrivalApp.swift; sourceTree = "<group>"; };
@@ -44,6 +47,7 @@
 		8283BC38FFB45491A06599B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearching.swift; sourceTree = "<group>"; };
 		8B998E9FE971457FE81D6469 /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
+		8D092F8212DD9B3FC2030032 /* ArrivalCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrivalCard.swift; sourceTree = "<group>"; };
 		943B92BBDADC5EFA0E39659A /* LiveAlarmService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveAlarmService.swift; sourceTree = "<group>"; };
 		96E150F9157B99B1AEE077C0 /* ServiceArea+MapKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ServiceArea+MapKit.swift"; sourceTree = "<group>"; };
 		97089FF793136C2EBFD084E5 /* TrackingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingView.swift; sourceTree = "<group>"; };
@@ -83,7 +87,9 @@
 			isa = PBXGroup;
 			children = (
 				9DC8C3496317BFB0772C4693 /* AlarmView.swift */,
+				8D092F8212DD9B3FC2030032 /* ArrivalCard.swift */,
 				35F3D834C3F34C041245B328 /* JourneyModel.swift */,
+				1C2557DCB49EDD5DCB54E8B3 /* StatusChip.swift */,
 				97089FF793136C2EBFD084E5 /* TrackingView.swift */,
 			);
 			path = Journey;
@@ -252,6 +258,7 @@
 				D83F7EB454A3A0C73F1E0F2B /* AlarmSettingsPanel.swift in Sources */,
 				9E3EBBAD129FE32046EE84C6 /* AlarmView.swift in Sources */,
 				7AB110D33E251CBF4E9A0D9F /* AppDependencies.swift in Sources */,
+				457FBBFCBED0BB1E15F415CA /* ArrivalCard.swift in Sources */,
 				A43174AAABADC2587EE19DD3 /* DestinationArrivalApp.swift in Sources */,
 				894CF71FB26E51833ECF3159 /* DestinationMap.swift in Sources */,
 				5B15936DE65F35236237E380 /* DeviceLocationService.swift in Sources */,
@@ -267,6 +274,7 @@
 				9547BECC532DEC92D849CF8D /* RootView.swift in Sources */,
 				01917A83FE6F7B575113AA0D /* SearchSuggestionRow.swift in Sources */,
 				7E1DD2C233C58BA59858CA3F /* ServiceArea+MapKit.swift in Sources */,
+				908667918F5432C2C2D77194 /* StatusChip.swift in Sources */,
 				67A2868CB2A318AF2FC34ABE /* TrackingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

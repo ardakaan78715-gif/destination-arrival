@@ -18,20 +18,14 @@ struct TrackingView: View {
                 MapScaleView()
             }
             .safeAreaInset(edge: .bottom) {
-                journeyCard(journey)
+                journeyPanel(journey)
             }
         }
     }
 
-    private func journeyCard(_ journey: Journey) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(journey.destination.name)
-                .font(.headline)
-            Text(arrivalLine(for: journey.estimate))
-                .font(.title2.bold())
-            Text(distanceLine(for: journey))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+    private func journeyPanel(_ journey: Journey) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            ArrivalCard(journey: journey)
             if let notice = journeyModel.notice {
                 Label(notice.message, systemImage: "exclamationmark.triangle.fill")
                     .font(.footnote)
@@ -52,20 +46,5 @@ struct TrackingView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
         .padding(.horizontal)
         .padding(.bottom, 8)
-    }
-
-    private func arrivalLine(for estimate: ArrivalEstimate?) -> String {
-        guard let timeRemaining = estimate?.timeRemaining else {
-            return "Measuring your speed…"
-        }
-        return "About \(Formatting.duration(timeRemaining)) to go"
-    }
-
-    private func distanceLine(for journey: Journey) -> String {
-        let alarm = "Alarm \(Formatting.leadTime(journey.settings.leadTime)) before arrival"
-        guard let estimate = journey.estimate else {
-            return "Finding your location… · \(alarm)"
-        }
-        return "\(Formatting.distance(estimate.distance)) away · \(alarm)"
     }
 }

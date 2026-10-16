@@ -20,7 +20,7 @@ final class LiveAlarmService: NSObject, AlarmService {
     func ring(for journey: Journey, reason: AlarmReason) {
         let content = UNMutableNotificationContent()
         content.title = Formatting.alarmTitle(for: journey.destination)
-        content.body = Formatting.alarmReason(reason, settings: journey.settings)
+        content.body = Formatting.alarmReason(reason, for: journey)
         content.sound = .default
         let request = UNNotificationRequest(identifier: Self.ringIdentifier, content: content, trigger: nil)
         Task {

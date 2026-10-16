@@ -8,7 +8,6 @@ struct FixBuilder {
     }
 
     static let startDate = Date(timeIntervalSinceReferenceDate: 800_000_000)
-    static let earthRadius = 6_371_000.0
 
     var latitude = 51.5
     var longitude = -0.2
@@ -68,37 +67,26 @@ struct FixBuilder {
     }
 
     func sample(afterMetres metres: Double, elapsed: TimeInterval = 0) -> LocationSample {
-        let point = coordinate(afterMetres: metres)
-        return LocationSample(
-            latitude: point.latitude,
-            longitude: point.longitude,
-            horizontalAccuracy: accuracy,
-            timestamp: start.addingTimeInterval(elapsed)
-        )
+        coordinate(afterMetres: metres).sample(accuracy: accuracy, at: start.addingTimeInterval(elapsed))
     }
 
     func destination(afterMetres metres: Double) -> Destination {
-        let point = coordinate(afterMetres: metres)
-        return Destination(name: "Test stop", latitude: point.latitude, longitude: point.longitude)
+        coordinate(afterMetres: metres).destination()
     }
 
-    func coordinate(afterMetres metres: Double) -> (latitude: Double, longitude: Double) {
+    func coordinate(afterMetres metres: Double) -> Waypoint {
+        let origin = Waypoint(latitude: latitude, longitude: longitude)
         switch bearing {
         case .north:
-            return (latitude + Self.degrees(metres), longitude)
+            return origin.moved(northMetres: metres)
         case .east:
-            return (latitude, longitude + Self.degrees(metres) / cos(latitude * .pi / 180))
+            return origin.moved(eastMetres: metres)
         }
     }
 
     private static func shifted(_ fix: LocationSample, northMetres: Double, eastMetres: Double) -> LocationSample {
-        var shifted = fix
-        shifted.latitude += degrees(northMetres)
-        shifted.longitude += degrees(eastMetres) / cos(fix.latitude * .pi / 180)
-        return shifted
-    }
-
-    private static func degrees(_ metres: Double) -> Double {
-        metres / earthRadius * 180 / .pi
+        Waypoint(latitude: fix.latitude, longitude: fix.longitude)
+            .moved(northMetres: northMetres, eastMetres: eastMetres)
+            .sample(accuracy: fix.horizontalAccuracy, at: fix.timestamp)
     }
 }

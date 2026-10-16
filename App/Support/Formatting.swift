@@ -21,12 +21,22 @@ enum Formatting {
         "Nearly at \(destination.name)"
     }
 
-    static func alarmReason(_ reason: AlarmReason, settings: AlarmSettings) -> String {
+    static func clockTime(_ date: Date) -> String {
+        date.formatted(date: .omitted, time: .shortened)
+    }
+
+    static func alarmReason(_ reason: AlarmReason, for journey: Journey) -> String {
         switch reason {
         case .withinLeadTime:
-            "About \(leadTime(settings.leadTime)) to go."
+            "About \(leadTime(journey.settings.leadTime)) to go."
         case .insideRadius:
-            "You're within \(distance(settings.radius))."
+            "You're within \(distance(journey.settings.radius))."
+        case .projectedDuringSignalLoss:
+            "No signal since \(lastFixTime(of: journey)). You're probably close, so we woke you early rather than late."
         }
+    }
+
+    private static func lastFixTime(of journey: Journey) -> String {
+        journey.estimate.map { clockTime($0.anchor.timestamp) } ?? "you set off"
     }
 }

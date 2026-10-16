@@ -37,6 +37,7 @@ final class JourneyModel {
     @ObservationIgnored private let location: any LocationService
     @ObservationIgnored private let alarms: any AlarmService
     @ObservationIgnored private var locationTask: Task<Void, Never>?
+    @ObservationIgnored private var clockTask: Task<Void, Never>?
 
     init(location: any LocationService, alarms: any AlarmService) {
         self.location = location
@@ -99,7 +100,9 @@ final class JourneyModel {
 
     private func endJourney() {
         locationTask?.cancel()
+        clockTask?.cancel()
         locationTask = nil
+        clockTask = nil
         journey = nil
     }
 
@@ -114,8 +117,10 @@ final class JourneyModel {
         switch effect {
         case .startLocationUpdates:
             follow(location.start())
+            startClock()
         case .stopLocationUpdates:
             location.stop()
+            clockTask?.cancel()
         case .ringAlarm(let reason):
             if let journey {
                 alarms.ring(for: journey, reason: reason)
@@ -130,6 +135,20 @@ final class JourneyModel {
         locationTask = Task { [weak self] in
             for await sample in samples {
                 self?.send(.locationReceived(sample))
+            }
+        }
+    }
+
+    private func startClock() {
+        clockTask?.cancel()
+        clockTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(10))
+                } catch {
+                    return
+                }
+                self?.send(.clockTicked(.now))
             }
         }
     }

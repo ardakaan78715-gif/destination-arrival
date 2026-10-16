@@ -24,6 +24,8 @@ public struct Journey: Sendable, Equatable {
             return [.startLocationUpdates]
         case (.tracking, .locationReceived(let fix)):
             return track(fix)
+        case (.tracking, .clockTicked(let date)):
+            return evaluate(at: date)
         case (.tracking, .cancelled):
             phase = .finished
             return [.stopLocationUpdates]
@@ -38,15 +40,19 @@ public struct Journey: Sendable, Equatable {
     private mutating func track(_ fix: LocationSample) -> [JourneyEffect] {
         guard fixFilter?.accept(fix) == .accepted else { return [] }
         speedEstimator.add(fix)
-        let estimate = ArrivalEstimate(
+        estimate = ArrivalEstimate(
             anchor: fix,
             destination: destination,
             cruiseSpeed: speedEstimator.cruiseSpeed,
             isMoving: speedEstimator.isMoving,
-            settings: settings
+            settings: settings,
+            tuning: tuning
         )
-        self.estimate = estimate
-        guard let reason = estimate.alarmReason else { return [] }
+        return evaluate(at: fix.timestamp)
+    }
+
+    private mutating func evaluate(at date: Date) -> [JourneyEffect] {
+        guard let reason = estimate?.alarmReason(at: date) else { return [] }
         phase = .ringing(reason)
         return [.stopLocationUpdates, .ringAlarm(reason)]
     }

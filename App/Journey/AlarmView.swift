@@ -13,7 +13,7 @@ struct AlarmView: View {
             if let journey = journeyModel.journey {
                 Text(Formatting.alarmTitle(for: journey.destination))
                     .font(.largeTitle.bold())
-                Text(Formatting.alarmReason(reason, settings: journey.settings))
+                Text(Formatting.alarmReason(reason, for: journey))
                     .font(.title3)
             }
             Spacer()
