@@ -3,6 +3,7 @@ import SwiftUI
 
 struct AlarmSettingsPanel: View {
     @Environment(JourneyModel.self) private var journeyModel
+    @Environment(PlaceHistoryStore.self) private var placeHistory
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -14,6 +15,9 @@ struct AlarmSettingsPanel: View {
             } else {
                 Text("Search or tap the map to choose where you're going")
                     .font(.headline)
+                if !placeHistory.history.isEmpty {
+                    SavedPlacesBar()
+                }
             }
             ForEach(journeyModel.notices, id: \.self) { notice in
                 Label(notice.message, systemImage: "exclamationmark.triangle.fill")
@@ -29,16 +33,33 @@ struct AlarmSettingsPanel: View {
     }
 
     private func destinationHeader(_ destination: Destination) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(destination.name)
-                .font(.title3.bold())
-            if let detail = destination.detail {
-                Text(detail)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(destination.name)
+                    .font(.title3.bold())
+                if let detail = destination.detail {
+                    Text(detail)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
             }
+            Spacer()
+            favouriteButton(for: destination)
         }
+    }
+
+    private func favouriteButton(for destination: Destination) -> some View {
+        let isFavourite = placeHistory.history.isFavourite(destination)
+        return Button(
+            isFavourite ? "Remove from favourites" : "Add to favourites",
+            systemImage: isFavourite ? "star.fill" : "star"
+        ) {
+            placeHistory.update { $0.toggleFavourite(destination) }
+        }
+        .labelStyle(.iconOnly)
+        .font(.title2)
+        .tint(.orange)
     }
 
     private var leadTimePicker: some View {

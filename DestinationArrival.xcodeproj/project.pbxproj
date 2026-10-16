@@ -16,6 +16,7 @@
 		457FBBFCBED0BB1E15F415CA /* ArrivalCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D092F8212DD9B3FC2030032 /* ArrivalCard.swift */; };
 		57FC572E9E9A74DA1E6C3395 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A419A4B285DB85B954A535C2 /* SettingsView.swift */; };
 		5B15936DE65F35236237E380 /* DeviceLocationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40815619939BB6E32D8FFF95 /* DeviceLocationService.swift */; };
+		5CFC960BB844C68F38D06FE9 /* SavedPlacesBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0700C0E860FF9B901356A /* SavedPlacesBar.swift */; };
 		67A2868CB2A318AF2FC34ABE /* TrackingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97089FF793136C2EBFD084E5 /* TrackingView.swift */; };
 		7AB110D33E251CBF4E9A0D9F /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F67281ED16B60CD74A2FBAA /* AppDependencies.swift */; };
 		7E1DD2C233C58BA59858CA3F /* ServiceArea+MapKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E150F9157B99B1AEE077C0 /* ServiceArea+MapKit.swift */; };
@@ -35,6 +36,7 @@
 		DE34406953E1052427A587BC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 212960B2C21363BAF70DF863 /* Assets.xcassets */; };
 		E326A005F265752A2C1BFA6A /* JourneyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F3D834C3F34C041245B328 /* JourneyModel.swift */; };
 		E3E6F2E9078F9E197008D4D3 /* LiveDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 654490D9885F5F7EF7922EBC /* LiveDependencies.swift */; };
+		E5949ACEE8887DF99A44E6C9 /* PlaceHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 739D39DBBC1BC0F297CE9326 /* PlaceHistoryStore.swift */; };
 		E8807B6CAC2885E90FBC1D01 /* LiveAlarmService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943B92BBDADC5EFA0E39659A /* LiveAlarmService.swift */; };
 		EA3948BA65242FC05B764E46 /* AlarmSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8394242DB80A632263F16B23 /* AlarmSoundPlayer.swift */; };
 		F697DF9E3676CF3AD1FA45EA /* PlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06C6E86833781C133B1D776 /* PlanView.swift */; };
@@ -54,6 +56,7 @@
 		5B7942A5C63E137A83CBD584 /* MetropolitanLine.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = MetropolitanLine.gpx; sourceTree = "<group>"; };
 		654490D9885F5F7EF7922EBC /* LiveDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDependencies.swift; sourceTree = "<group>"; };
 		724CB4F660C478A1A3414DA4 /* Alarm.caf */ = {isa = PBXFileReference; path = Alarm.caf; sourceTree = "<group>"; };
+		739D39DBBC1BC0F297CE9326 /* PlaceHistoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceHistoryStore.swift; sourceTree = "<group>"; };
 		8283BC38FFB45491A06599B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8394242DB80A632263F16B23 /* AlarmSoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSoundPlayer.swift; sourceTree = "<group>"; };
 		858938BC2A0ABBF7EA502DD6 /* PlaceSearching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceSearching.swift; sourceTree = "<group>"; };
@@ -68,6 +71,7 @@
 		9F67281ED16B60CD74A2FBAA /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
 		A419A4B285DB85B954A535C2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A92ECA7C479CA108F347D906 /* AlarmService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmService.swift; sourceTree = "<group>"; };
+		B2C0700C0E860FF9B901356A /* SavedPlacesBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedPlacesBar.swift; sourceTree = "<group>"; };
 		B556404C3F39D456547A346C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		BB08781CA9C86CE477803EAF /* Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatting.swift; sourceTree = "<group>"; };
 		BB8CCAA7BE8D4CAD53EBB4FA /* DestinationArrival.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DestinationArrival.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -195,6 +199,7 @@
 				8283BC38FFB45491A06599B5 /* Info.plist */,
 				B556404C3F39D456547A346C /* RootView.swift */,
 				0D6C682CBD7C9AE777EA147A /* Journey */,
+				F7D391306B53669BB0BAB8A7 /* Places */,
 				F89729A1CC5FC40FCE13D1D0 /* Planning */,
 				D9A2029E8A398365D1EF6C62 /* Platform */,
 				4B135915FF42EB626C9B4DC5 /* Resources */,
@@ -205,6 +210,14 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		F7D391306B53669BB0BAB8A7 /* Places */ = {
+			isa = PBXGroup;
+			children = (
+				739D39DBBC1BC0F297CE9326 /* PlaceHistoryStore.swift */,
+			);
+			path = Places;
+			sourceTree = "<group>";
+		};
 		F89729A1CC5FC40FCE13D1D0 /* Planning */ = {
 			isa = PBXGroup;
 			children = (
@@ -212,6 +225,7 @@
 				1DA8E64B635341EA527DD879 /* DestinationMap.swift */,
 				9A0CD7DC80797131F2A5E220 /* PlaceSearchModel.swift */,
 				D06C6E86833781C133B1D776 /* PlanView.swift */,
+				B2C0700C0E860FF9B901356A /* SavedPlacesBar.swift */,
 				EB2FD02F2E3CC1804698F3E0 /* SearchSuggestionRow.swift */,
 			);
 			path = Planning;
@@ -311,10 +325,12 @@
 				E3E6F2E9078F9E197008D4D3 /* LiveDependencies.swift in Sources */,
 				8E86E58DFB4A980530FA3120 /* LocalPlaceSearch.swift in Sources */,
 				28A5C877903C3DDB0BB52B3E /* LocationService.swift in Sources */,
+				E5949ACEE8887DF99A44E6C9 /* PlaceHistoryStore.swift in Sources */,
 				D0CA9C1EC0A3CDCFE06859DF /* PlaceSearchModel.swift in Sources */,
 				0974E8075C6F87C390555B0C /* PlaceSearching.swift in Sources */,
 				F697DF9E3676CF3AD1FA45EA /* PlanView.swift in Sources */,
 				9547BECC532DEC92D849CF8D /* RootView.swift in Sources */,
+				5CFC960BB844C68F38D06FE9 /* SavedPlacesBar.swift in Sources */,
 				01917A83FE6F7B575113AA0D /* SearchSuggestionRow.swift in Sources */,
 				7E1DD2C233C58BA59858CA3F /* ServiceArea+MapKit.swift in Sources */,
 				2C1996943512467455F71BB0 /* SettingsStore.swift in Sources */,

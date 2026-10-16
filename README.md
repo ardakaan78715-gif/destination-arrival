@@ -12,6 +12,7 @@ You nod off on the train and wake up two stops too late. Map apps will show you 
 
 - Opens on a map of London. Search for a station or address, or tap the map to drop a pin. Places outside London are refused for now.
 - Lets you choose how early to be woken: 1, 2, 3, 5 or 10 minutes before arrival (2 minutes by default). It also rings once you are inside a wake radius around the stop, whichever happens first. A slider sets the radius from 200 m to 3 km (750 m by default), and the circle on the map follows it as you drag.
+- Remembers the last eight places you travelled to, and any you star as favourites. Until you choose a place they sit in the panel under the map as one-tap buttons, and they appear in search before you type, so a regular journey is one tap away, even with no signal to search. Places within 50 m of each other count as one, and a long press removes a place.
 - Remembers the lead time and radius you last used, so the next journey starts with them. Settings, behind the gear button, show distances in kilometres or miles (or follow the device), play a short **Test the alarm** tone at the current media volume, and list tips for making sure you hear it.
 - Asks for location and notification permission only when you tap **Start journey**.
 - Shows the time to arrival, the distance left, when the alarm will go off and the signal status (Live GPS, Stopped, Waiting to move, or No signal · estimating), updated every second.
@@ -159,10 +160,11 @@ flowchart LR
 
 | Folder | Role |
 |---|---|
-| `Packages/ArrivalKit` | Pure Swift package with every decision: models, fix filtering, cruise speed, the arrival estimate and the `Journey` state machine. It uses only Foundation and CoreLocation types and is fully unit-tested. |
+| `Packages/ArrivalKit` | Pure Swift package with every decision: models, fix filtering, cruise speed, the arrival estimate, the `Journey` state machine and the rules for recent and favourite places. It uses only Foundation and CoreLocation types and is fully unit-tested. |
 | `App/Services` | Protocols for location, alarms, the alarm sound and place search, plus implementations on UserNotifications and MapKit. |
 | `App/Platform` | The only folder that touches iOS-only APIs: the `CLLocationManager` wrapper with its background session, the `AVAudioSession` tone player, and the live composition of services. |
 | `App/Planning`, `App/Journey`, `App/Settings` | `@Observable` models and SwiftUI screens for choosing a destination, tracking the journey and ringing, plus the settings screen and the store that keeps the alarm defaults and distance units in `UserDefaults`. |
+| `App/Places` | The store that keeps recent and favourite places in a JSON file in the app's Application Support folder, written atomically. |
 
 **Why a reducer.** `Journey` is a value type that turns each event (journey started, location received, clock ticked, backup alarm fired, alarm stopped, cancelled) into a list of effects (start location updates at a precision, sharpen the precision, stop them, schedule or cancel the backup alarm, ring, silence). It has no clocks, timers or I/O, and time arrives inside the events. That makes it deterministic: every scenario is just a list of fixes and ticks, and the tests replay them on macOS. The app performs the effects through injected services and contains no arrival logic of its own.
 
@@ -196,7 +198,7 @@ The route is synthetic. It is hand-plotted from public station locations with in
 swift test --package-path Packages/ArrivalKit
 ```
 
-The tests use Swift Testing. ArrivalKit imports only Foundation and CoreLocation, so the whole suite runs on macOS with just the Swift toolchain: no Xcode, no simulator and no device. They cover the destination and settings models (stored settings are snapped and clamped back into range when they are read), the London service area and distance measurement; the fix filter's rules and their order; the cruise speed through steady runs, station dwells, platform jitter, coarse fixes and long gaps; the arrival estimate, its projection between fixes, its alarm time and its signal status; the journey state machine: starting, ignoring rejected fixes, ringing inside the radius, ringing within the lead time, ringing on the projection after signal loss, re-anchoring on a fresh fix, never ringing on jitter, ringing exactly once, stopping, cancelling and ignoring events before the start; the tracking precision: starting in economy, switching to precise within 5 km or 10 minutes, including on a projection through a tunnel, switching only once and never back; the backup alarm: scheduled once the estimate is armed, including when the signal is lost before any speed is measured, never while waiting on a platform with live GPS, moved only when the alarm time shifts by more than 20 seconds, cancelled by a ring or a cancel, and ringing when it fires during tracking but not after; whole journeys replayed fix by fix and tick by tick, from the scenario table above; and the Simulator route itself: its 19 waypoints, the tunnel starting at Finchley Road, times that only move forward, train speeds on every moving leg, and replays to Baker Street and Finchley Road that agree across jitter seeds. Jittered fixes come from a seeded generator, so every run is identical.
+The tests use Swift Testing. ArrivalKit imports only Foundation and CoreLocation, so the whole suite runs on macOS with just the Swift toolchain: no Xcode, no simulator and no device. They cover the destination and settings models (stored settings are snapped and clamped back into range when they are read), the London service area and distance measurement; the fix filter's rules and their order; the cruise speed through steady runs, station dwells, platform jitter, coarse fixes and long gaps; the arrival estimate, its projection between fixes, its alarm time and its signal status; the journey state machine: starting, ignoring rejected fixes, ringing inside the radius, ringing within the lead time, ringing on the projection after signal loss, re-anchoring on a fresh fix, never ringing on jitter, ringing exactly once, stopping, cancelling and ignoring events before the start; the tracking precision: starting in economy, switching to precise within 5 km or 10 minutes, including on a projection through a tunnel, switching only once and never back; the backup alarm: scheduled once the estimate is armed, including when the signal is lost before any speed is measured, never while waiting on a platform with live GPS, moved only when the alarm time shifts by more than 20 seconds, cancelled by a ring or a cancel, and ringing when it fires during tracking but not after; whole journeys replayed fix by fix and tick by tick, from the scenario table above; the Simulator route itself: its 19 waypoints, the tunnel starting at Finchley Road, times that only move forward, train speeds on every moving leg, and replays to Baker Street and Finchley Road that agree across jitter seeds; and the place history: newest first, nearby duplicates merged, at most eight recents, favourites kept out of the recents, starring and unstarring, removal and saving to JSON. Jittered fixes come from a seeded generator, so every run is identical.
 
 ### Continuous integration
 
@@ -209,20 +211,19 @@ Every push to `main` and every pull request runs two jobs on GitHub's macOS 15 r
 
 ## Privacy
 
-Everything stays on the device. There are no accounts, analytics or third-party SDKs. Location is used only during a journey, with When In Use permission. It keeps running in the background until the alarm rings or the journey ends, and iOS shows the blue location indicator the whole time. MapKit search is the only network use.
+Everything stays on the device. There are no accounts, analytics or third-party SDKs. Location is used only during a journey, with When In Use permission. It keeps running in the background until the alarm rings or the journey ends, and iOS shows the blue location indicator the whole time. MapKit search is the only network use. Recent and favourite places are kept in a file on the device and never leave it.
 
 ## Known limitations
 
 - **An express tunnel can ring late.** If a train runs slowly on the surface (about 12 m/s) and then fast through a long express tunnel (about 22 m/s), the projection falls behind and the alarm can be up to about a minute late. The 15 m/s projection floor limits the damage.
 - **Boarding with no signal rings early.** Without a measured speed the app assumes a fast train, so on slower lines it can ring several minutes early, as in the Victoria line scenario. Any station fix on the way corrects the estimate.
 - **Looping routes ring early.** The estimate uses straight-line distance, so a line that swings away from the destination and back again rings sooner than it needs to.
-- **Search needs a signal.** Choose the destination before going underground. Dropping a pin on the map works without one.
+- **Search needs a signal.** Choose the destination before going underground. Favourites, recent places and dropping a pin on the map all work without one.
 - **Closing the app ends the journey.** Swiping the app away from the app switcher stops tracking. The backup alarm still fires at the last projected time, but it cannot follow a delayed train.
 - **A closed app cannot ring through the silent switch.** The backup notifications follow the silent switch, so with it on they only vibrate and light the screen.
 
 ## Roadmap
 
-- Recent and favourite destinations
 - Readiness checks before a journey, and accessibility across every screen
 - Siri and Shortcuts, AlarmKit on iOS 26, and a Live Activity
 - More cities beyond London

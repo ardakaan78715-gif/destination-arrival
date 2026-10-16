@@ -40,6 +40,7 @@ final class JourneyModel {
     @ObservationIgnored private let location: any LocationService
     @ObservationIgnored private let alarms: any AlarmService
     @ObservationIgnored private let settingsStore: SettingsStore
+    @ObservationIgnored private let placeHistory: PlaceHistoryStore
     @ObservationIgnored private var locationTask: Task<Void, Never>?
     @ObservationIgnored private var clockTask: Task<Void, Never>?
 
@@ -47,11 +48,13 @@ final class JourneyModel {
         location: any LocationService,
         alarms: any AlarmService,
         settingsStore: SettingsStore,
+        placeHistory: PlaceHistoryStore,
         tunnel: TunnelSimulator?
     ) {
         self.location = location
         self.alarms = alarms
         self.settingsStore = settingsStore
+        self.placeHistory = placeHistory
         self.tunnel = tunnel
         alarms.onStopRequested = { [weak self] in self?.stopAlarm() }
         alarms.onBackupDelivered = { [weak self] in self?.send(.backupAlarmFired) }
@@ -108,6 +111,7 @@ final class JourneyModel {
         notices = warnings(notificationsAllowed: notificationsAllowed)
         journey = Journey(destination: draft, settings: settings)
         send(.started(.now))
+        placeHistory.update { $0.recordJourney(to: draft) }
     }
 
     func stopAlarm() {
