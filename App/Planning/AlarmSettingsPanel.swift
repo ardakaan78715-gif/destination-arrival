@@ -9,6 +9,7 @@ struct AlarmSettingsPanel: View {
             if let draft = journeyModel.draft {
                 destinationHeader(draft)
                 leadTimePicker
+                radiusSlider
                 startButton
             } else {
                 Text("Search or tap the map to choose where you're going")
@@ -52,6 +53,22 @@ struct AlarmSettingsPanel: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
+        }
+    }
+
+    private var radiusSlider: some View {
+        @Bindable var journeyModel = journeyModel
+        let radius = Formatting.distance(journeyModel.settings.radius, unit: journeyModel.distanceUnit)
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Or when within \(radius)")
+                .font(.subheadline)
+            Slider(
+                value: $journeyModel.settings.radius,
+                in: AlarmSettings.radiusRange,
+                step: AlarmSettings.radiusStep
+            ) {
+                Text("Wake radius")
+            }
         }
     }
 

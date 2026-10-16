@@ -7,8 +7,9 @@ protocol AlarmService: AnyObject {
     var onBackupDelivered: (@MainActor () -> Void)? { get set }
     var isVolumeLow: Bool { get }
     func requestPermission() async -> Bool
-    func ring(for journey: Journey, reason: AlarmReason)
+    func ring(for journey: Journey, reason: AlarmReason, unit: DistanceUnit)
     func silence()
     func scheduleBackup(at date: Date, for journey: Journey)
     func cancelBackup()
+    func playTest()
 }

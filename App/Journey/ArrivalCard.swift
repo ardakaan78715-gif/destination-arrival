@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ArrivalCard: View {
     let journey: Journey
+    let unit: DistanceUnit
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
@@ -33,7 +34,7 @@ struct ArrivalCard: View {
         guard let estimate = journey.estimate else {
             return "Finding your location…"
         }
-        let distance = Formatting.distance(estimate.distanceRemaining(at: date))
+        let distance = Formatting.distance(estimate.distanceRemaining(at: date), unit: unit)
         return estimate.isSignalLost(at: date) ? "About \(distance) away" : "\(distance) away"
     }
 

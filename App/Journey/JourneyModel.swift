@@ -32,7 +32,6 @@ final class JourneyModel {
     }
 
     var draft: Destination?
-    var settings = AlarmSettings()
     private(set) var journey: Journey?
     private(set) var notices: [Notice] = []
     private(set) var isStarting = false
@@ -40,15 +39,31 @@ final class JourneyModel {
 
     @ObservationIgnored private let location: any LocationService
     @ObservationIgnored private let alarms: any AlarmService
+    @ObservationIgnored private let settingsStore: SettingsStore
     @ObservationIgnored private var locationTask: Task<Void, Never>?
     @ObservationIgnored private var clockTask: Task<Void, Never>?
 
-    init(location: any LocationService, alarms: any AlarmService, tunnel: TunnelSimulator?) {
+    init(
+        location: any LocationService,
+        alarms: any AlarmService,
+        settingsStore: SettingsStore,
+        tunnel: TunnelSimulator?
+    ) {
         self.location = location
         self.alarms = alarms
+        self.settingsStore = settingsStore
         self.tunnel = tunnel
         alarms.onStopRequested = { [weak self] in self?.stopAlarm() }
         alarms.onBackupDelivered = { [weak self] in self?.send(.backupAlarmFired) }
+    }
+
+    var settings: AlarmSettings {
+        get { settingsStore.alarm }
+        set { settingsStore.alarm = newValue }
+    }
+
+    var distanceUnit: DistanceUnit {
+        settingsStore.distanceUnit
     }
 
     var screen: Screen {
@@ -113,6 +128,10 @@ final class JourneyModel {
         endJourney()
     }
 
+    func playTestAlarm() {
+        alarms.playTest()
+    }
+
     private func warnings(notificationsAllowed: Bool) -> [Notice] {
         var warnings: [Notice] = []
         if !notificationsAllowed {
@@ -157,7 +176,7 @@ final class JourneyModel {
             alarms.cancelBackup()
         case .ringAlarm(let reason):
             if let journey {
-                alarms.ring(for: journey, reason: reason)
+                alarms.ring(for: journey, reason: reason, unit: distanceUnit)
             }
         case .silenceAlarm:
             alarms.silence()

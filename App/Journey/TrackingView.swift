@@ -25,7 +25,7 @@ struct TrackingView: View {
 
     private func journeyPanel(_ journey: Journey) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            ArrivalCard(journey: journey)
+            ArrivalCard(journey: journey, unit: journeyModel.distanceUnit)
             ForEach(journeyModel.notices, id: \.self) { notice in
                 Label(notice.message, systemImage: "exclamationmark.triangle.fill")
                     .font(.footnote)

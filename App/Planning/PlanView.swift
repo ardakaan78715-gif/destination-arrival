@@ -5,6 +5,7 @@ struct PlanView: View {
     @Environment(JourneyModel.self) private var journeyModel
     @Environment(PlaceSearchModel.self) private var searchModel
     @State private var isSearchPresented = false
+    @State private var isSettingsPresented = false
 
     var body: some View {
         @Bindable var searchModel = searchModel
@@ -14,6 +15,16 @@ struct PlanView: View {
                     AlarmSettingsPanel()
                 }
                 .navigationTitle("Destination Arrival")
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button("Settings", systemImage: "gearshape") {
+                            isSettingsPresented = true
+                        }
+                    }
+                }
+                .sheet(isPresented: $isSettingsPresented) {
+                    SettingsView()
+                }
                 .searchable(text: $searchModel.query, isPresented: $isSearchPresented, prompt: "Search London")
                 .searchSuggestions {
                     if searchModel.isSearching && searchModel.results.isEmpty {

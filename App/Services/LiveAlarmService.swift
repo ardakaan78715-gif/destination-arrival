@@ -26,13 +26,14 @@ final class LiveAlarmService: NSObject, AlarmService {
         (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
     }
 
-    func ring(for journey: Journey, reason: AlarmReason) {
+    func ring(for journey: Journey, reason: AlarmReason, unit: DistanceUnit) {
         sound.start()
-        post(AlarmNotification.ring, content: content(for: journey, reason: reason), after: nil)
+        let message = Formatting.alarmReason(reason, for: journey, unit: unit)
+        post(AlarmNotification.ring, content: content(for: journey, message: message), after: nil)
     }
 
     func scheduleBackup(at date: Date, for journey: Journey) {
-        let backup = content(for: journey, reason: .scheduledBackup)
+        let backup = content(for: journey, message: Formatting.backupReminder)
         let delay = date.timeIntervalSinceNow
         post(AlarmNotification.firstBackup, content: backup, after: delay)
         post(AlarmNotification.secondBackup, content: backup, after: delay + AlarmNotification.followUpDelay)
@@ -48,10 +49,14 @@ final class LiveAlarmService: NSObject, AlarmService {
         center.removeDeliveredNotifications(withIdentifiers: AlarmNotification.all)
     }
 
-    private func content(for journey: Journey, reason: AlarmReason) -> UNNotificationContent {
+    func playTest() {
+        sound.playSample(seconds: 3)
+    }
+
+    private func content(for journey: Journey, message: String) -> UNNotificationContent {
         let content = UNMutableNotificationContent()
         content.title = Formatting.alarmTitle(for: journey.destination)
-        content.body = Formatting.alarmReason(reason, for: journey)
+        content.body = message
         content.sound = UNNotificationSound(named: UNNotificationSoundName(AlarmNotification.soundFile))
         content.categoryIdentifier = AlarmNotification.categoryIdentifier
         content.threadIdentifier = AlarmNotification.thread
