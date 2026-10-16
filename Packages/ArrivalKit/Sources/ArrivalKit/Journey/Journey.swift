@@ -5,20 +5,25 @@ public struct Journey: Sendable, Equatable {
     public let settings: AlarmSettings
     public private(set) var phase: JourneyPhase = .ready
     public private(set) var estimate: ArrivalEstimate?
-    private var speedEstimator = SpeedEstimator()
+    private let tuning: ArrivalTuning
+    private var fixFilter: FixFilter?
+    private var speedEstimator: CruiseSpeedEstimator
 
-    public init(destination: Destination, settings: AlarmSettings) {
+    public init(destination: Destination, settings: AlarmSettings, tuning: ArrivalTuning = .standard) {
         self.destination = destination
         self.settings = settings
+        self.tuning = tuning
+        self.speedEstimator = CruiseSpeedEstimator(tuning: tuning)
     }
 
     public mutating func handle(_ event: JourneyEvent) -> [JourneyEffect] {
         switch (phase, event) {
-        case (.ready, .started):
+        case (.ready, .started(let date)):
             phase = .tracking
+            fixFilter = FixFilter(journeyStart: date, tuning: tuning)
             return [.startLocationUpdates]
-        case (.tracking, .locationReceived(let sample)):
-            return track(sample)
+        case (.tracking, .locationReceived(let fix)):
+            return track(fix)
         case (.tracking, .cancelled):
             phase = .finished
             return [.stopLocationUpdates]
@@ -30,11 +35,14 @@ public struct Journey: Sendable, Equatable {
         }
     }
 
-    private mutating func track(_ sample: LocationSample) -> [JourneyEffect] {
-        speedEstimator.add(sample)
+    private mutating func track(_ fix: LocationSample) -> [JourneyEffect] {
+        guard fixFilter?.accept(fix) == .accepted else { return [] }
+        speedEstimator.add(fix)
         let estimate = ArrivalEstimate(
-            distance: sample.distance(to: destination),
-            speed: speedEstimator.speed,
+            anchor: fix,
+            destination: destination,
+            cruiseSpeed: speedEstimator.cruiseSpeed,
+            isMoving: speedEstimator.isMoving,
             settings: settings
         )
         self.estimate = estimate

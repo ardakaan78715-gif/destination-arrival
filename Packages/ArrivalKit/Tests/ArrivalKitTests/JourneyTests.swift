@@ -26,6 +26,7 @@ import Testing
         let effects = firstEffects(feeding: route.samples(), to: &journey)
 
         #expect(effects == [.stopLocationUpdates, .ringAlarm(.withinLeadTime)])
+        #expect(journey.estimate?.isMoving == true)
         let timeRemaining = try #require(journey.estimate?.timeRemaining)
         #expect(timeRemaining <= 120)
         #expect(timeRemaining > 115)
@@ -83,6 +84,50 @@ import Testing
 
         #expect(firstEffects(feeding: platform.samples(), to: &journey).isEmpty)
         #expect(journey.phase == .tracking)
+        #expect(journey.estimate?.isMoving == false)
+    }
+
+    @Test func staleFixesFromBeforeStartAreIgnored() {
+        var journey = startedJourney(metresAway: 5_000)
+        let cachedBeforeStart = route.sample(afterMetres: 4_900, elapsed: -120)
+
+        #expect(journey.handle(.locationReceived(cachedBeforeStart)).isEmpty)
+        #expect(journey.estimate == nil)
+        #expect(journey.phase == .tracking)
+    }
+
+    @Test func rejectedFixesAreIgnored() {
+        var journey = startedJourney(metresAway: 5_000)
+        _ = journey.handle(.locationReceived(route.sample(afterMetres: 0)))
+        let estimate = journey.estimate
+        var cellTower = route.sample(afterMetres: 4_800, elapsed: 400)
+        cellTower.horizontalAccuracy = 500
+        let glitch = route.sample(afterMetres: 4_900, elapsed: 2)
+
+        for fix in [cellTower, glitch] {
+            #expect(journey.handle(.locationReceived(fix)).isEmpty)
+        }
+        #expect(journey.estimate == estimate)
+        #expect(journey.phase == .tracking)
+    }
+
+    @Test func coarseStationFixCountsForDistance() {
+        var journey = startedJourney(metresAway: 5_000)
+        _ = journey.handle(.locationReceived(route.sample(afterMetres: 0)))
+        var stationWiFi = route.sample(afterMetres: 4_150, elapsed: 300)
+        stationWiFi.horizontalAccuracy = 150
+
+        #expect(journey.handle(.locationReceived(stationWiFi)) == [.stopLocationUpdates, .ringAlarm(.insideRadius)])
+        #expect(journey.estimate?.speedSource == nil)
+    }
+
+    @Test func jitterOutsideRadiusNeverRings() {
+        var journey = startedJourney(metresAway: 1_500)
+        let platform = FixBuilder(speed: 0, count: 1_800).jittered(maxMetres: 8, seed: 3)
+
+        #expect(firstEffects(feeding: platform.samples(), to: &journey).isEmpty)
+        #expect(journey.phase == .tracking)
+        #expect(journey.estimate?.speedSource == nil)
     }
 
     private func startedJourney(metresAway metres: Double) -> Journey {

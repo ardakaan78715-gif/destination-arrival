@@ -14,18 +14,45 @@ You nod off on the train and wake up two stops too late. Map apps will show you 
 - Lets you choose how early to be woken: 1, 2, 3, 5 or 10 minutes before arrival (2 minutes by default). It also rings once you are within 750 m of the stop, whichever happens first.
 - Asks for location and notification permission only when you tap **Start journey**.
 - Shows the destination, the distance left and an estimated time to arrival while you travel.
+- Ignores GPS glitches and platform jitter, and keeps its speed estimate through station stops.
 - Rings with a full-screen alert and a notification, then stops with one large **I'm awake** button.
 
 Tracking currently runs while the app is open. Background tracking with a locked phone is next on the [roadmap](#roadmap).
 
 ## How it decides when to wake you
 
-- **Speed** comes from the last minute of location fixes. Only fixes accurate to 100 m or better count. The app needs 20 seconds of data and at least 1 m/s before it trusts a speed.
-- **Time to arrival** is the straight-line distance to the stop divided by that speed.
-- **The alarm rings** when the time to arrival drops to your chosen lead time, or when you are inside the radius, whichever comes first. Put another way, the alarm distance is `max(speed × lead time, radius)`.
-- **It rings exactly once.** Late fixes after the alarm are ignored.
+Every rule below lives in the ArrivalKit package, behind `Journey.handle(_:)`, and is covered by unit tests.
 
-All of this lives in `Journey.handle(_:)` in the ArrivalKit package, so every rule is covered by a unit test.
+1. **Filter the fixes.** A location fix is dropped if its accuracy is negative or worse than 200 m, if it was cached more than 60 seconds before the journey started, if it is not newer than the last accepted fix, or if getting there from the last accepted fix implies a speed above 90 m/s. The jump check divides by the time since that fix, so the first fix after a four-minute tunnel is accepted even though it is kilometres from the last one.
+2. **Measure the cruise speed.** Fixes accurate to 100 m or better become speed points at least 10 seconds apart. A step between two points counts as moving only when it covers more ground than the fixes' accuracy and averages at least 2.5 m/s. The cruise speed is the moving distance divided by the moving time over the last 3 minutes, once at least 30 seconds of movement has been seen. It is worked out again only when a new moving step arrives, so station dwells and platform jitter never drag it towards zero, and braking into a station cannot pull it down while the train waits. The last measured speed is kept through stops.
+3. **Take the pessimistic distance.** The straight-line distance to the stop is reduced by the fix's accuracy, giving the closest the phone could be. A coarse 150 m station Wi-Fi fix still counts, but it can only bring the alarm forward.
+4. **Estimate the time to arrival** as that distance divided by the cruise speed.
+5. **Ring** when the time to arrival drops to your chosen lead time, or when you are inside the radius, whichever comes first. Put another way, the alarm distance is `max(cruise speed × lead time, radius)`. A lead-time ring needs a measured speed, so jitter while standing still is never mistaken for a train about to arrive.
+6. **Ring exactly once.** Late fixes after the alarm are ignored.
+
+### Why it errs early
+
+- A straight line is never longer than the track, so the distance left is never overestimated.
+- The cruise speed leaves out the station dwells still to come, which shortens the estimated time left rather than stretching it.
+- Every distance is reduced by the fix's accuracy.
+
+Each of these can only move the alarm earlier. Waking a minute early is a small cost; missing the stop is the failure the app exists to prevent.
+
+### Tuning
+
+The constants live in `ArrivalTuning.standard`, which is passed into `Journey` so tests can vary it.
+
+| Constant | Value | Reason |
+|---|---|---|
+| `maximumAccuracy` | 200 m | Station Wi-Fi fixes (30-150 m) count for distance; cell-tower fixes (kilometres) do not |
+| `maximumSpeedAccuracy` | 100 m | Speed needs fixes sharp enough to measure 10 s of travel |
+| `maximumPlausibleSpeed` | 90 m/s | Faster implied jumps are glitches. It uses the elapsed time, so a long tunnel gap still passes |
+| `staleFixAllowance` | 60 s | Cached fixes from before the journey started are ignored |
+| `speedStep` | 10 s | Minimum spacing between speed points |
+| `maximumSpeedStep` | 30 s | A longer gap may hide a stop, so it never counts towards speed |
+| `movingSpeed` | 2.5 m/s | Slower steps are a dwell or jitter |
+| `speedWindow` | 180 s | Long enough to span a station dwell |
+| `minimumMovingTime` | 30 s | Moving time needed before a speed counts as measured |
 
 ## Architecture
 
@@ -42,7 +69,7 @@ flowchart LR
 
 | Folder | Role |
 |---|---|
-| `Packages/ArrivalKit` | Pure Swift package with every decision: models, speed estimation, the arrival estimate and the `Journey` state machine. It uses only Foundation and CoreLocation types and is fully unit-tested. |
+| `Packages/ArrivalKit` | Pure Swift package with every decision: models, fix filtering, cruise speed, the arrival estimate and the `Journey` state machine. It uses only Foundation and CoreLocation types and is fully unit-tested. |
 | `App/Services` | Protocols for location, alarms and place search, plus implementations on UserNotifications and MapKit. |
 | `App/Platform` | The only folder that touches iOS-only APIs: the `CLLocationManager` wrapper and the live composition of services. |
 | `App/Planning`, `App/Journey` | `@Observable` models and SwiftUI screens for choosing a destination, tracking the journey and ringing. |
@@ -64,7 +91,7 @@ The Xcode project is generated by XcodeGen from `project.yml`. After changing `p
 swift test --package-path Packages/ArrivalKit
 ```
 
-The tests use Swift Testing. ArrivalKit imports only Foundation and CoreLocation, so the whole suite runs on macOS with just the Swift toolchain: no Xcode, no simulator and no device. They cover the destination and settings models, the London service area, distance measurement, the speed estimator, the arrival estimate and the journey state machine: starting, ringing inside the radius, ringing within the lead time, ringing exactly once, stopping, cancelling and ignoring events before the start.
+The tests use Swift Testing. ArrivalKit imports only Foundation and CoreLocation, so the whole suite runs on macOS with just the Swift toolchain: no Xcode, no simulator and no device. They cover the destination and settings models, the London service area and distance measurement; the fix filter's rules and their order; the cruise speed through steady runs, station dwells, platform jitter, coarse fixes and long gaps; the pessimistic arrival estimate; and the journey state machine: starting, ignoring rejected fixes, ringing inside the radius, ringing within the lead time, never ringing on jitter, ringing exactly once, stopping, cancelling and ignoring events before the start. Jittered fixes come from a seeded generator, so every run is identical.
 
 ### Continuous integration
 
@@ -81,7 +108,6 @@ Everything stays on the device. There are no accounts, analytics or third-party 
 
 ## Roadmap
 
-- Speed that survives station stops and GPS noise
 - Counting down through Underground tunnels with no signal
 - Background tracking with the phone locked, with battery-aware accuracy
 - A loud alarm through the silent switch, a lock-screen Stop button and a backup alarm held by iOS

@@ -1,14 +1,32 @@
 import Foundation
 
-public struct ArrivalEstimate: Sendable, Equatable {
-    public var distance: Double
-    public var speed: Double?
-    public var settings: AlarmSettings
+public enum SpeedSource: Sendable, Equatable {
+    case measured
+}
 
-    public init(distance: Double, speed: Double?, settings: AlarmSettings) {
-        self.distance = distance
-        self.speed = speed
+public struct ArrivalEstimate: Sendable, Equatable {
+    public let anchor: LocationSample
+    public let distance: Double
+    public let speed: Double?
+    public let isMoving: Bool
+    public let settings: AlarmSettings
+
+    public init(
+        anchor: LocationSample,
+        destination: Destination,
+        cruiseSpeed: Double?,
+        isMoving: Bool,
+        settings: AlarmSettings
+    ) {
+        self.anchor = anchor
+        self.distance = max(0, anchor.distance(to: destination) - anchor.horizontalAccuracy)
+        self.speed = cruiseSpeed
+        self.isMoving = isMoving
         self.settings = settings
+    }
+
+    public var speedSource: SpeedSource? {
+        speed == nil ? nil : .measured
     }
 
     public var timeRemaining: TimeInterval? {
@@ -23,7 +41,7 @@ public struct ArrivalEstimate: Sendable, Equatable {
         if distance <= settings.radius {
             return .insideRadius
         }
-        if speed != nil, distance <= alarmDistance {
+        if speedSource == .measured, distance <= alarmDistance {
             return .withinLeadTime
         }
         return nil
