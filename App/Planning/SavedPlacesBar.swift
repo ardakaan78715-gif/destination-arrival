@@ -9,21 +9,21 @@ struct SavedPlacesBar: View {
         ScrollView(.horizontal) {
             HStack(spacing: 8) {
                 ForEach(placeHistory.history.favourites) { place in
-                    chip(for: place, systemImage: "star.fill")
+                    chip(for: place, kind: .favourite)
                 }
                 ForEach(placeHistory.history.recents) { place in
-                    chip(for: place, systemImage: "clock")
+                    chip(for: place, kind: .recent)
                 }
             }
         }
         .scrollIndicators(.hidden)
     }
 
-    private func chip(for place: Destination, systemImage: String) -> some View {
+    private func chip(for place: Destination, kind: PlaceKind) -> some View {
         Button {
             journeyModel.select(place)
         } label: {
-            Label(place.name, systemImage: systemImage)
+            Label(place.name, systemImage: kind.systemImage)
                 .font(.subheadline)
                 .lineLimit(1)
         }
@@ -31,8 +31,16 @@ struct SavedPlacesBar: View {
         .buttonBorderShape(.capsule)
         .contextMenu {
             Button("Remove", systemImage: "trash", role: .destructive) {
-                placeHistory.update { $0.remove(place) }
+                remove(place)
             }
         }
+        .accessibilityLabel(kind.spokenLabel(name: place.name))
+        .accessibilityAction(named: "Remove") {
+            remove(place)
+        }
+    }
+
+    private func remove(_ place: Destination) {
+        placeHistory.update { $0.remove(place) }
     }
 }

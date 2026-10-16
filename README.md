@@ -23,6 +23,7 @@ You nod off on the train and wake up two stops too late. Map apps will show you 
 - Keeps a backup alarm with iOS at the projected alarm time, so the phone still alerts you if iOS stops the app on the way.
 - Says so straight away if location access is turned off during a journey, with the time of the backup alarm that is still set, instead of quietly tracking nothing.
 - Comes with a timed Metropolitan line journey for the Simulator, and a debug switch that cuts location fixes to show the tunnel estimate live.
+- Works with VoiceOver, large text and Reduce Motion on every screen, and announces when the signal drops, when it returns and when the alarm rings.
 
 ## How it decides when to wake you
 
@@ -229,6 +230,20 @@ Every push to `main` and every pull request runs two jobs on GitHub's macOS 15 r
 | **ArrivalKit tests** | Runs `swift test --package-path Packages/ArrivalKit`, so every arrival rule is checked on each change. |
 | **iOS Simulator build** | Builds the app for the generic iOS Simulator with `xcodebuild` and `CODE_SIGNING_ALLOWED=NO`, so no certificate or developer account is involved. It uses the committed Xcode project, so CI does not need XcodeGen. |
 
+## Accessibility
+
+The app is used half-asleep, often without looking at the screen, so every screen works with VoiceOver, large text and Reduce Motion.
+
+- **The journey card reads as one sentence.** VoiceOver treats the card as a single element and reads it as, for example, "About 6 minutes to Baker Street, 3.2 kilometres away. Alarm at about 08:14", followed by the signal status. The card is marked as updating frequently, so the sentence stays current while it has focus. `Formatting.spokenSummary` builds it from the same estimate as the visible text, with units and durations spelled out.
+- **Status is never colour alone.** The status chip always pairs a symbol with words, and VoiceOver spells it out: "No signal for 3 minutes, estimating". The words use the primary text colour for contrast and only the symbol is tinted. On the readiness sheet, blockers and warnings sit under their own headings, "Needs sorting first" and "Worth checking", instead of being told apart by a red or orange icon.
+- **Changes are announced.** VoiceOver says when the signal drops and when it comes back, and when location access is turned off mid-journey. When the alarm rings it announces, at high priority, "Nearly at Baker Street. About 2 minutes to go."
+- **Search works without the map.** Any place can be found and chosen from search alone. Each suggestion reads as one line: the name, the address, and whether it is a station, a favourite or a recent place. The map is labelled "Map of London" with the hint "Tap to drop a pin, or use Search", and the destination marker carries the place's name. The wake radius drawn on the map is described by the slider in the panel instead. Saved places can be removed with a VoiceOver action as well as a long press.
+- **Controls say what they set.** The lead time picker reads as "Wake me before arrival, 2 minutes", and the radius slider reads its value as a distance in your chosen units, such as "750 metres".
+- **Large text reflows.** At accessibility text sizes the lead time becomes a menu with the minutes spelled out instead of a row of narrow segments, the destination header stacks vertically, and the settings panel and the alarm screen scroll rather than push their buttons off screen. **Start journey** always spans the full width.
+- **A big target to stop the alarm.** **I'm awake** fills the width of the screen and is at least 88 points tall, growing with the text size. The alarm screen's title is a heading, a warning haptic plays as it appears, and it keeps black text on orange in both light and dark mode.
+- **Reduce Motion.** The pulsing alarm symbol stays still when Reduce Motion is on.
+- **System colours.** Everything else uses system and semantic colours, so it follows light and dark mode.
+
 ## Privacy
 
 Everything stays on the device. There are no accounts, analytics or third-party SDKs. Location is used only during a journey, with When In Use permission. It keeps running in the background until the alarm rings or the journey ends, and iOS shows the blue location indicator the whole time. MapKit search is the only network use. Recent and favourite places are kept in a file on the device and never leave it.
@@ -247,7 +262,6 @@ Everything stays on the device. There are no accounts, analytics or third-party 
 
 ## Roadmap
 
-- Accessibility across every screen
 - Siri and Shortcuts, AlarmKit on iOS 26, and a Live Activity
 - More cities beyond London
 

@@ -1,3 +1,4 @@
+import ArrivalKit
 import SwiftUI
 
 struct RootView: View {
@@ -16,5 +17,18 @@ struct RootView: View {
         }
         .transition(.opacity)
         .animation(.easeInOut(duration: 0.25), value: journeyModel.screen)
+        .onChange(of: journeyModel.screen) { _, screen in
+            if case .ringing(let reason) = screen, let journey = journeyModel.journey {
+                announceAlarm(reason, for: journey)
+            }
+        }
+    }
+
+    private func announceAlarm(_ reason: AlarmReason, for journey: Journey) {
+        let title = Formatting.alarmTitle(for: journey.destination)
+        let detail = Formatting.alarmReason(reason, for: journey, unit: journeyModel.distanceUnit)
+        var announcement = AttributedString("\(title). \(detail)")
+        announcement.accessibilitySpeechAnnouncementPriority = .high
+        AccessibilityNotification.Announcement(announcement).post()
     }
 }

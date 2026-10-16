@@ -47,10 +47,10 @@ struct PlanView: View {
     @ViewBuilder
     private var savedPlaceSuggestions: some View {
         ForEach(placeHistory.history.favourites) { place in
-            suggestionButton(for: place, systemImage: "star.fill")
+            suggestionButton(for: place, kind: .favourite)
         }
         ForEach(placeHistory.history.recents) { place in
-            suggestionButton(for: place, systemImage: "clock")
+            suggestionButton(for: place, kind: .recent)
         }
     }
 
@@ -58,20 +58,18 @@ struct PlanView: View {
     private var searchResultSuggestions: some View {
         if searchModel.isSearching && searchModel.results.isEmpty {
             ProgressView()
+                .accessibilityLabel("Searching")
         }
         ForEach(searchModel.results) { suggestion in
-            suggestionButton(
-                for: suggestion.destination,
-                systemImage: suggestion.isStation ? "tram.fill" : "mappin"
-            )
+            suggestionButton(for: suggestion.destination, kind: suggestion.isStation ? .station : .place)
         }
     }
 
-    private func suggestionButton(for destination: Destination, systemImage: String) -> some View {
+    private func suggestionButton(for destination: Destination, kind: PlaceKind) -> some View {
         Button {
             choose(destination)
         } label: {
-            SearchSuggestionRow(destination: destination, systemImage: systemImage)
+            SearchSuggestionRow(destination: destination, kind: kind)
         }
     }
 

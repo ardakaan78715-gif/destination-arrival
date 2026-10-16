@@ -18,6 +18,7 @@ struct TrackingView: View {
                 MapCompass()
                 MapScaleView()
             }
+            .accessibilityLabel("Map of your journey to \(journey.destination.name)")
             .safeAreaInset(edge: .top) {
                 if journeyModel.notice == .locationLost {
                     locationLostBanner(journey)
@@ -26,12 +27,24 @@ struct TrackingView: View {
             .safeAreaInset(edge: .bottom) {
                 journeyPanel(journey)
             }
+            .onChange(of: journeyModel.notice) { _, notice in
+                if notice == .locationLost {
+                    AccessibilityNotification.Announcement(
+                        Formatting.locationLost(backupAlarm: journey.scheduledBackup)
+                    ).post()
+                }
+            }
         }
     }
 
     private func journeyPanel(_ journey: Journey) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            ArrivalCard(journey: journey, unit: journeyModel.distanceUnit)
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                ArrivalCard(journey: journey, unit: journeyModel.distanceUnit, now: context.date)
+                    .onChange(of: isSignalLost(journey, at: context.date)) { _, isLost in
+                        announceSignal(isLost: isLost)
+                    }
+            }
             Text("Keep Destination Arrival open in the background. Swiping it away stops tracking.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
@@ -72,6 +85,15 @@ struct TrackingView: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
         .padding(.horizontal)
         .padding(.top, 8)
+    }
+
+    private func isSignalLost(_ journey: Journey, at date: Date) -> Bool {
+        journey.estimate?.isSignalLost(at: date) ?? false
+    }
+
+    private func announceSignal(isLost: Bool) {
+        let message = isLost ? "No signal. Estimating from your last position." : "Signal is back."
+        AccessibilityNotification.Announcement(message).post()
     }
 }
 

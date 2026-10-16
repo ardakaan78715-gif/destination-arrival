@@ -10,12 +10,25 @@ struct ReadinessSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    ForEach(check.issues, id: \.self) { issue in
-                        ReadinessRow(issue: issue, settingsURL: journeyModel.settingsURL)
+                if !blockers.isEmpty {
+                    Section {
+                        rows(for: blockers)
+                    } header: {
+                        Text("Needs sorting first")
+                    } footer: {
+                        Text("The journey can't start until this is sorted. If you change a setting, the check runs again when you come back.")
                     }
-                } footer: {
-                    Text(footer)
+                }
+                if !warnings.isEmpty {
+                    Section {
+                        rows(for: warnings)
+                    } header: {
+                        Text("Worth checking")
+                    } footer: {
+                        if check.canStartAnyway {
+                            Text("You can still start the journey, but the alarm will be easier to miss.")
+                        }
+                    }
                 }
             }
             .navigationTitle(check.canStartAnyway ? "Before you set off" : "Can't start yet")
@@ -40,11 +53,18 @@ struct ReadinessSheet: View {
         }
     }
 
-    private var footer: String {
-        if check.canStartAnyway {
-            return "You can still start the journey, but the alarm will be easier to miss."
+    private var blockers: [ReadinessIssue] {
+        check.issues.filter(\.isBlocking)
+    }
+
+    private var warnings: [ReadinessIssue] {
+        check.issues.filter { !$0.isBlocking }
+    }
+
+    private func rows(for issues: [ReadinessIssue]) -> some View {
+        ForEach(issues, id: \.self) { issue in
+            ReadinessRow(issue: issue, settingsURL: journeyModel.settingsURL)
         }
-        return "The journey can't start until this is sorted. If you change a setting, the check runs again when you come back."
     }
 
     private var startAnywayButton: some View {

@@ -4,8 +4,22 @@ import SwiftUI
 struct AlarmSettingsPanel: View {
     @Environment(JourneyModel.self) private var journeyModel
     @Environment(PlaceHistoryStore.self) private var placeHistory
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
+        ViewThatFits(in: .vertical) {
+            content
+            ScrollView {
+                content
+            }
+        }
+        .padding()
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .padding(.horizontal)
+        .padding(.bottom, 8)
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 14) {
             if let draft = journeyModel.draft {
                 destinationHeader(draft)
@@ -26,25 +40,30 @@ struct AlarmSettingsPanel: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
-        .padding(.horizontal)
-        .padding(.bottom, 8)
+    }
+
+    private var headerLayout: AnyLayout {
+        if dynamicTypeSize.isAccessibilitySize {
+            AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+        } else {
+            AnyLayout(HStackLayout(alignment: .top))
+        }
     }
 
     private func destinationHeader(_ destination: Destination) -> some View {
-        HStack(alignment: .top) {
+        headerLayout {
             VStack(alignment: .leading, spacing: 2) {
                 Text(destination.name)
                     .font(.title3.bold())
+                    .accessibilityAddTraits(.isHeader)
                 if let detail = destination.detail {
                     Text(detail)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                        .lineLimit(2)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? nil : 2)
                 }
             }
-            Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
             favouriteButton(for: destination)
         }
     }
@@ -64,32 +83,46 @@ struct AlarmSettingsPanel: View {
 
     private var leadTimePicker: some View {
         @Bindable var journeyModel = journeyModel
+        let picker = Picker("Wake me before arrival", selection: $journeyModel.settings.leadTime) {
+            ForEach(AlarmSettings.leadTimeChoices, id: \.self) { choice in
+                Text(leadTimeTitle(choice))
+                    .accessibilityLabel(Formatting.leadTime(choice))
+                    .tag(choice)
+            }
+        }
+        .labelsHidden()
         return VStack(alignment: .leading, spacing: 8) {
             Text("Wake me \(Formatting.leadTime(journeyModel.settings.leadTime)) before I arrive")
                 .font(.subheadline)
-            Picker("Wake me before arrival", selection: $journeyModel.settings.leadTime) {
-                ForEach(AlarmSettings.leadTimeChoices, id: \.self) { choice in
-                    Text("\(Int(choice / 60)) min").tag(choice)
-                }
+                .accessibilityHidden(true)
+            if dynamicTypeSize.isAccessibilitySize {
+                picker.pickerStyle(.menu)
+            } else {
+                picker.pickerStyle(.segmented)
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
         }
+    }
+
+    private func leadTimeTitle(_ choice: TimeInterval) -> String {
+        dynamicTypeSize.isAccessibilitySize ? Formatting.leadTime(choice) : Formatting.duration(choice)
     }
 
     private var radiusSlider: some View {
         @Bindable var journeyModel = journeyModel
-        let radius = Formatting.distance(journeyModel.settings.radius, unit: journeyModel.distanceUnit)
+        let radius = journeyModel.settings.radius
+        let unit = journeyModel.distanceUnit
         return VStack(alignment: .leading, spacing: 8) {
-            Text("Or when within \(radius)")
+            Text("Or when within \(Formatting.distance(radius, unit: unit))")
                 .font(.subheadline)
+                .accessibilityHidden(true)
             Slider(
                 value: $journeyModel.settings.radius,
                 in: AlarmSettings.radiusRange,
                 step: AlarmSettings.radiusStep
             ) {
-                Text("Wake radius")
+                Text("Or wake me within")
             }
+            .accessibilityValue(Formatting.spokenDistance(radius, unit: unit))
         }
     }
 

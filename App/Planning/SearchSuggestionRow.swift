@@ -3,7 +3,7 @@ import SwiftUI
 
 struct SearchSuggestionRow: View {
     let destination: Destination
-    let systemImage: String
+    let kind: PlaceKind
 
     var body: some View {
         Label {
@@ -18,8 +18,47 @@ struct SearchSuggestionRow: View {
                 }
             }
         } icon: {
-            Image(systemName: systemImage)
+            Image(systemName: kind.systemImage)
                 .foregroundStyle(.tint)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(kind.spokenLabel(name: destination.name, detail: destination.detail))
+    }
+}
+
+enum PlaceKind {
+    case favourite
+    case recent
+    case station
+    case place
+
+    var systemImage: String {
+        switch self {
+        case .favourite:
+            "star.fill"
+        case .recent:
+            "clock"
+        case .station:
+            "tram.fill"
+        case .place:
+            "mappin"
+        }
+    }
+
+    func spokenLabel(name: String, detail: String? = nil) -> String {
+        [name, detail, spokenName].compactMap { $0 }.joined(separator: ", ")
+    }
+
+    private var spokenName: String? {
+        switch self {
+        case .favourite:
+            "Favourite"
+        case .recent:
+            "Recent"
+        case .station:
+            "Station"
+        case .place:
+            nil
         }
     }
 }

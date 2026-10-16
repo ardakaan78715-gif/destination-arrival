@@ -19,6 +19,8 @@ struct DestinationMap: View {
                 MapCompass()
                 MapScaleView()
             }
+            .accessibilityLabel("Map of London")
+            .accessibilityHint("Tap to drop a pin, or use Search")
             .onTapGesture { point in
                 if let coordinate = proxy.convert(point, from: .local) {
                     journeyModel.dropPin(at: coordinate)

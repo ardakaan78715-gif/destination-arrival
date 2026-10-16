@@ -6,25 +6,18 @@ struct StatusChip: View {
     let now: Date
 
     var body: some View {
-        Label(title, systemImage: symbol)
-            .font(.footnote.weight(.semibold))
-            .foregroundStyle(tint)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(tint.opacity(0.15), in: Capsule())
-    }
-
-    private var title: String {
-        switch status {
-        case .live:
-            "Live GPS"
-        case .stopped:
-            "Stopped"
-        case .waitingToMove:
-            "Waiting to move"
-        case .estimating(let since):
-            "No signal for \(Formatting.duration(now.timeIntervalSince(since))) · estimating"
+        Label {
+            Text(Formatting.signalStatus(status, at: now))
+        } icon: {
+            Image(systemName: symbol)
+                .foregroundStyle(tint)
         }
+        .font(.footnote.weight(.semibold))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(tint.opacity(0.15), in: Capsule())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Formatting.spokenSignalStatus(status, at: now))
     }
 
     private var symbol: String {
